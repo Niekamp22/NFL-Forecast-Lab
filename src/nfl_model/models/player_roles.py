@@ -13,8 +13,19 @@ FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interc
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-def checked_player_snapshot(root):
+ROLE_POLICY = 'observed_current_stint_v2'
+
+
+def checked_player_snapshot(root, current=False):
     folder, meta = earliest_snapshot(root)
+    if current:
+        candidates=[]
+        for path in Path(root).glob('*/manifest.json'):
+            item=json.loads(path.read_text())
+            if item.get('role_policy')==ROLE_POLICY and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
+                candidates.append((pd.Timestamp(item['created_at']),str(path.parent),item))
+        if candidates:
+            _,selected,meta=min(candidates,key=lambda x:x[:2]);folder=Path(selected)
     path = folder/'predictions.parquet'
     if hashlib.sha256(path.read_bytes()).hexdigest() != meta['predictions_sha256']:
         raise ValueError('Player prediction checksum mismatch')
@@ -45,11 +56,29 @@ def audit_allocations(players, teams):
             raise ValueError('Targets exceed pass attempts')
 
 
+def current_stint(history, player_id, team):
+    observed=history[history.player_id.eq(player_id)].sort_values('kickoff')
+    other=observed[~observed.team.eq(team)]
+    if not other.empty:observed=observed[observed.kickoff.gt(other.kickoff.max())]
+    return observed[observed.team.eq(team)].tail(5)
+
+
+def observed_workload(prior, team_games, stat, budget):
+    """Recency-weighted shares over observed games only; missing rows aren't zeros."""
+    pairs=prior[['game_id','kickoff',stat]].merge(team_games[['game_id',stat]],on='game_id',suffixes=('_player','_team'),validate='one_to_one').sort_values('kickoff')
+    pairs=pairs.dropna(subset=[stat+'_player',stat+'_team'])
+    pairs=pairs[pairs[stat+'_team'].gt(0)]
+    if pairs.empty:return 0.
+    shares=(pairs[stat+'_player']/pairs[stat+'_team']).clip(0,1)
+    return float(np.average(shares,weights=np.arange(1,len(pairs)+1))*budget)
+
+
 def freeze_role_forecast(root, season, week):
     root=Path(root)
     target=root/'player_role_forecasts'/str(season)/f'week_{week:02d}'
     if list(target.glob('*/manifest.json')):
-        return checked_player_snapshot(target)[0]
+        saved,saved_meta,_=checked_player_snapshot(target,current=True)
+        if saved_meta.get('role_policy')==ROLE_POLICY:return saved
     original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
     now=pd.Timestamp.now(tz='UTC')
     if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
@@ -100,7 +129,7 @@ def freeze_role_forecast(root, season, week):
         qb=qb_depth[0] if len(qb_depth)==1 and qb_depth[0]==leader==last_leader and qb_depth[0] in set(candidates.player_id) else None
         player_rows=[]
         for r in candidates.itertuples():
-            prior=teamhist[teamhist.player_id.eq(r.player_id)]
+            prior=current_stint(history,r.player_id,team)
             baseline=observations[observations.player_id.eq(r.player_id)]
             row=dict(season=season,week=week,game_id=game.game_id,kickoff_utc=game.kickoff,team=team,
                      opponent=game.away_team if team==game.home_team else game.home_team,
@@ -112,7 +141,7 @@ def freeze_role_forecast(root, season, week):
             if r.position=='QB' and qb is None: row['review_flags']+='; Depth and usage do not establish a starter'
             for s in FIELDS: row[s]=np.nan
             for opportunity in ['targets','carries']:
-                row['_'+opportunity]=float((prior[opportunity]*prior.game_id.map(old_weights)).sum())
+                row['_'+opportunity]=observed_workload(prior,team_games[team_games.team.eq(team)],opportunity,totals[opportunity])
             for s in ['receptions','receiving_yards','receiving_tds','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']:
                 found=baseline[baseline.stat.eq(s)]
                 row['_rate_'+s]=float(found.efficiency.iloc[0]) if len(found) and s not in ['fg_att','pat_att'] else np.nan
@@ -165,8 +194,8 @@ def freeze_role_forecast(root, season, week):
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
     players.to_parquet(folder/'predictions.parquet',index=False);players.to_csv(folder/'predictions.csv',index=False)
     teams.to_parquet(folder/'team_budgets.parquet',index=False)
-    info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),
-              source_forecast=str(original.resolve()),method='Provisional role allocation: five-game team opportunity budget; usage shares; depth/usage QB agreement; ten-game player efficiency',
+    info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),role_policy=ROLE_POLICY,
+              source_forecast=str(original.resolve()),method='Five-game team budget; normalized observed-game current-stint workload shares; depth/usage QB agreement; ten-game player efficiency',
               selection_reason='Default operational view for coherent team/player totals, not a demonstrated accuracy winner. Defense experiments remain research options.',
               uncertainty='No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.',
               input_hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[original/'predictions.parquet']},

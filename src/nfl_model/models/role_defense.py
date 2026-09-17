@@ -5,7 +5,7 @@ import uuid
 from pathlib import Path
 import numpy as np
 import pandas as pd
-from .player_roles import FIELDS,checked_player_snapshot,audit_allocations
+from .player_roles import FIELDS,checked_player_snapshot,audit_allocations,ROLE_POLICY
 from .player_matchup import split_context,fit_split,apply_split
 
 
@@ -32,8 +32,10 @@ def adjust_allocations(players,budgets,factors):
 
 def freeze_defense_roles(root,season,week):
     root=Path(root);target=root/'player_role_defense_forecasts'/str(season)/f'week_{week:02d}'
-    if list(target.glob('*/manifest.json')):return checked_player_snapshot(target)[0]
-    original,meta,players=checked_player_snapshot(root/'player_role_forecasts'/str(season)/f'week_{week:02d}')
+    if list(target.glob('*/manifest.json')):
+        saved,saved_meta,_=checked_player_snapshot(target,current=True)
+        if saved_meta.get('role_policy')==ROLE_POLICY:return saved
+    original,meta,players=checked_player_snapshot(root/'player_role_forecasts'/str(season)/f'week_{week:02d}',current=True)
     now=pd.Timestamp.now(tz='UTC')
     if now>=pd.Timestamp(meta['earliest_kickoff']):raise ValueError('Cannot freeze after kickoff')
     if season<=2025:raise ValueError('2022–2023 training / 2024–2025 evaluation require a later prospective season')

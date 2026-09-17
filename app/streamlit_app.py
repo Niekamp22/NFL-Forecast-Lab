@@ -59,7 +59,7 @@ try:
     role_root=root/('player_role_defense_forecasts' if use_defense_roles else 'player_role_forecasts')/str(season)/f'week_{week:02d}'
     players=pd.DataFrame();budgets=pd.DataFrame();meta=None
     if list(role_root.glob('*/manifest.json')):
-        folder,meta,players=checked_player_snapshot(role_root)
+        folder,meta,players=checked_player_snapshot(role_root,current=True)
         budgets=pd.read_parquet(folder/'team_budgets.parquet')
 except (OSError,ValueError,KeyError) as exc:st.error(f'Cannot load verified forecasts: {exc}');st.stop()
 
@@ -204,7 +204,7 @@ with st.expander('Role & availability'):
     st.caption('Prior snap share is observed usage, not a prediction of participation. Starter designations are unconfirmed.')
 with st.expander('How this projection was calculated',expanded=True):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
-    st.write('Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy')=='observed_current_stint_v2' else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
     if use_defense_roles:
         st.write(f"Opponent adjustment: passing workload × {player.pass_volume_multiplier:.3f}, receiving yards per target × {player.pass_rate_multiplier:.3f}; rushing workload × {player.rush_volume_multiplier:.3f}, yards per carry × {player.rush_rate_multiplier:.3f}.")
         st.caption(player.defense_status)

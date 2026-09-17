@@ -1,11 +1,27 @@
 """Read-only milestone panel for a selected player and statistic."""
 import streamlit as st
 from nfl_model.milestone_views import load_milestones
+from nfl_model.player_views import load_pinned_history,season_hit_rates
+from nfl_model.models.milestones import thresholds
+import json
+
+
+@st.cache_data(show_spinner=False)
+def milestone_history(meta_json):
+    return load_pinned_history(json.loads(meta_json))
 
 
 def render_milestones(root,season,week,defense,folder,meta,player_id,game_id,position,stat):
     st.subheader('Milestone probabilities')
     st.caption('175+ means at least 175, including exactly 175. Statistical milestones are not sportsbook settlement rules.')
+    try:
+        rates=season_hit_rates(milestone_history(json.dumps(meta,sort_keys=True)),player_id,season,stat,thresholds(stat))
+        st.markdown(f'**{season} actual hit rates**')
+        st.dataframe(rates,hide_index=True,width='stretch',column_config={'Season hit rate %':st.column_config.NumberColumn('Season hit rate',format='%.1f%%')})
+        st.caption('Hits / recorded games in this season across all teams, through the forecast’s saved data cutoff. Missing stats and unrecorded appearances are excluded. A 1/1 record is one observed result, not a 100% probability next game. These are stat hit rates, not model accuracy.')
+    except (OSError,ValueError,KeyError,StopIteration) as exc:
+        st.info(f'Season hit rates unavailable: {exc}')
+    st.markdown('**Model probability estimates**')
     try:
         data=load_milestones(root,season,week,defense,folder,meta)
         if data is None:

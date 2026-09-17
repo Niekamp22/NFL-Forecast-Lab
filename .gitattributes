@@ -1,2 +1,2 @@
-# Preserve the exact bytes of checksum-verified release files.
+# Preserve checksum-verified release bytes.
 * -text

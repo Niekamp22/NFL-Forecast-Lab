@@ -30,6 +30,15 @@ def with_total_yards(frame):
     return result
 
 
+def season_hit_rates(history,player_id,season,stat,levels):
+    """Descriptive frequencies from source-pinned completed games, not forecasts."""
+    rows=with_total_yards(history[history.player_id.eq(player_id)&history.season.eq(season)])
+    values=rows[stat].dropna()
+    return pd.DataFrame([{'Milestone':f'{level:g}+','Hits':int(values.ge(level).sum()),
+                          'Recorded games':len(values),'Season hit rate %':100*values.ge(level).mean() if len(values) else float('nan')}
+                         for level in levels])
+
+
 def blank_explanations(player,stats):
     """Explain only what the frozen row supports; don't infer injuries from blanks."""
     reasons={}

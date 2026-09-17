@@ -100,7 +100,7 @@ def evaluate_records(records):
 def build_milestones(root,season,week,defense=False):
     root=Path(root)
     family='defense' if defense else 'baseline'
-    original,meta,players=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}')
+    original,meta,players=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=True)
     now=pd.Timestamp.now(tz='UTC')
     if season<=2025:raise ValueError('Prospective milestones require a season after the evaluation years')
     if now>=pd.Timestamp(meta['earliest_kickoff']):raise ValueError('Cannot freeze milestones after kickoff')
