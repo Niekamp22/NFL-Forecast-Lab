@@ -1,0 +1,71 @@
+{
+  "created_at": "2026-09-15 20:13:43.868383+00:00",
+  "earliest_kickoff": "2026-09-18 00:15:00+00:00",
+  "season": 2026,
+  "week": 2,
+  "games": 16,
+  "margin_snapshot": "data\\snapshots\\2026\\week_02\\20260915T195105565628Z_4a381203",
+  "score_snapshot": "data\\snapshots_scores\\2026\\week_02\\20260915T200707881032Z_7ee89002",
+  "calibration_build": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\models\\probability\\20260915T201024551819Z_03deeb72",
+  "qb_evidence": "data\\processed\\qb_evidence\\20260915T200142784686Z_2850e6a7",
+  "source": {
+    "dataset": "schedules",
+    "season": null,
+    "version": "20260915T185732866676Z_11180409",
+    "retrieved_at": "2026-09-15T18:57:33.068073+00:00",
+    "source_updated_at": "2026-09-15T18:46:20Z",
+    "asset_id": 566292075,
+    "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.parquet",
+    "sha256": "bf83e7b0f98c82c5f2fe1db693bb8c31417ae664253330198920f267109f1c68",
+    "bytes": 520529,
+    "etag": "\"0x8DF1359A2441F57\"",
+    "path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\schedules\\all\\20260915T185732866676Z_11180409\\games.parquet"
+  },
+  "input_hashes": {
+    "data\\snapshots\\2026\\week_02\\20260915T195105565628Z_4a381203\\predictions.parquet": "c2ac4d589bc19b98a9abbee1dff1ee29028487e979f14baecf079e36c1468241",
+    "data\\snapshots_scores\\2026\\week_02\\20260915T200707881032Z_7ee89002\\predictions.parquet": "a4876d4ac0e1dc621543ebcb650cb7c03b578500f18e63a818914e6fb574780c",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\models\\probability\\20260915T201024551819Z_03deeb72\\manifest.json": "810c654d9e6d10ee96338c924c685aeca3b54863fbcbc0dfa5d3f0e6a02f2c49",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\models\\efficiency\\20260915T194421097339Z_aa613db4\\predictions_success.parquet": "3d51c7a30bcb44a104181b0b2353c14004a50c15667b73abb1d4c473bc7da579",
+    "data\\processed\\qb_evidence\\20260915T200142784686Z_2850e6a7\\qb_evidence.parquet": "e0a0069b415c9c612aba365922baccf8d3ead94e2c3ade1fc4932f6a5d5c45cd",
+    "data\\processed\\qb_evidence\\20260915T200142784686Z_2850e6a7\\reviewed_news.json": "47b132bbd545d490e3c4f7baa8dc444229a4f7da5bf4c1769d1397c051082653",
+    "data\\processed\\qb_evidence\\20260915T200142784686Z_2850e6a7\\manifest.json": "0cbd182fdb7432a0085aef05ee19028d45afbbaa3fadfbdcf92b2292256e9183"
+  },
+  "calibrator": {
+    "coefficients": [
+      -0.07792566445425846,
+      1.097418352994159
+    ],
+    "tie_probability": 0.003369839932603201,
+    "baseline_probabilities": [
+      0.45534962089300757,
+      0.003369839932603201,
+      0.5412805391743892
+    ],
+    "training_games": 1087,
+    "decisive_games": 1084,
+    "penalty": 100.0,
+    "tie_prior_games": 100,
+    "tie_prior_rate": 0.01
+  },
+  "calibration_last_game_date": "2026-01-04",
+  "calibration_policy": "fit to prior seasons only; 2026 prospective outcomes will be evaluated before any recalibration policy change",
+  "legacy_margin_creation_hash_available": false,
+  "predictions_sha256": "8b818997c27976566a16e9a9e51a27b749515c16a7b630004e48e331f4a73306",
+  "code_sha256": {
+    "backtest.py": "eb4dcd3dd65d7d64c5891b7d694828c61c895a2809fa4657722f77dc73b717da",
+    "efficiency.py": "42e773d42338d71df5f821b7b4bb2eb6a55351b4b0128f8c7ebdb1537ede8faa",
+    "efficiency_experiment.py": "92c345f7edabed8c18726fb1d690ef095d6432b45af17a7c30051acb2615964e",
+    "full_grading.py": "59e0a1088eb82d38aa8d2355b53be475eb6c4fef1b22e7cd030f52f4f6f943be",
+    "grading.py": "c2169076bc4b9573e534b568a2f296afc1712da83b63963ea2c85dc247602281",
+    "probability.py": "2b7e22011516b7551f6595b8a240db6ba82c6ddf72606b5875282d9b00d1c1b7",
+    "probability_experiment.py": "1cc4c623469b19025fcf6279387aeaf86dba53419ed5a8bd5631ed1c0cb0d32e",
+    "prospective.py": "12ae3042481d7091fe9b5db2b27956861ba6ff0de33b56b86f872763eb0ab496",
+    "qb_experiment.py": "cdd1bcc6f354e138432b365588fba44f0d1351b3607421745b09e8f6b913827c",
+    "ratings.py": "7ee3a60830a41ab74a96961176533a17f9c78154911cb0b7e4f4036b2e633826",
+    "score_forecast.py": "28f3d74e4ea46789a79d369cb605a7bf944e934551ba4a99895a43f3154e0c63",
+    "totals.py": "ff1bddbc8ffa1f0dcb8e4287ff834bfd3bc6cd3da2d774e034a0db17a6feea96",
+    "totals_experiment.py": "e740e8be1bfe6ce06b4a0feb172efdd4f7d11a0389414e5caaca53506defb9d8",
+    "uncertainty.py": "79b47a3bf3010894acd98d6d119e7a2fbe5f4f981e96a0437edc0f35badf9423",
+    "weekly_forecast.py": "aa6814cce7e986bcc3e7c5bc3df34e386936de5b4bdb3df42be9bd66b0c08c1f"
+  }
+}
