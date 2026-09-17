@@ -14,7 +14,7 @@ FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interc
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-ROLE_POLICY = 'current_season_v3'
+ROLE_POLICY = 'current_season_qb_v4'
 
 
 def checked_player_snapshot(root, current=False):
@@ -39,6 +39,17 @@ def allocate(total, weights, historical_total):
     denominator = max(float(weights.sum()), float(historical_total), 1e-12)
     values = total*weights/denominator
     return values, max(0,float(total-values.sum()))
+
+
+def resolve_current_qb(depth_ids,latest_qbs,eligible_ids):
+    """Depth QB1 plus a substantive majority in the latest game; not confirmation."""
+    if len(depth_ids)!=1 or latest_qbs.empty:return None
+    usage=latest_qbs.groupby('player_id').attempts.sum(min_count=1).dropna()
+    if usage.empty or usage.sum()<=0:return None
+    leader=usage.idxmax()
+    if leader==depth_ids[0] and leader in set(eligible_ids) and usage[leader]>=10 and usage[leader]/usage.sum()>.5:
+        return leader
+    return None
 
 
 def audit_allocations(players, teams):
@@ -128,7 +139,7 @@ def freeze_role_forecast(root, season, week):
         # Depth and last game's actual usage must agree, too: old starters may have changed.
         latest_qb=qb_stats[qb_stats.game_id.eq(games.iloc[-1].game_id)]
         last_leader=latest_qb.loc[latest_qb.attempts.idxmax(),'player_id'] if not latest_qb.empty else None
-        qb=qb_depth[0] if len(qb_depth)==1 and qb_depth[0]==leader==last_leader and qb_depth[0] in set(candidates.player_id) else None
+        qb=resolve_current_qb(qb_depth,latest_qb,candidates.player_id)
         player_rows=[]
         for r in candidates.itertuples():
             prior=current_stint(history,r.player_id,team)
