@@ -8,12 +8,13 @@ import numpy as np
 import pandas as pd
 
 from .weekly_forecast import earliest_snapshot
+from ..season_weighting import weights as season_weights,policy as season_policy
 
 FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interceptions',
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-ROLE_POLICY = 'observed_current_stint_v2'
+ROLE_POLICY = 'current_season_v3'
 
 
 def checked_player_snapshot(root, current=False):
@@ -63,14 +64,15 @@ def current_stint(history, player_id, team):
     return observed[observed.team.eq(team)].tail(5)
 
 
-def observed_workload(prior, team_games, stat, budget):
+def observed_workload(prior, team_games, stat, budget, season=None):
     """Recency-weighted shares over observed games only; missing rows aren't zeros."""
-    pairs=prior[['game_id','kickoff',stat]].merge(team_games[['game_id',stat]],on='game_id',suffixes=('_player','_team'),validate='one_to_one').sort_values('kickoff')
+    pairs=prior[['game_id','kickoff',stat]+(['season'] if season is not None else [])].merge(team_games[['game_id',stat]],on='game_id',suffixes=('_player','_team'),validate='one_to_one').sort_values('kickoff')
     pairs=pairs.dropna(subset=[stat+'_player',stat+'_team'])
     pairs=pairs[pairs[stat+'_team'].gt(0)]
     if pairs.empty:return 0.
     shares=(pairs[stat+'_player']/pairs[stat+'_team']).clip(0,1)
-    return float(np.average(shares,weights=np.arange(1,len(pairs)+1))*budget)
+    w=season_weights(pairs,season,'player_share') if season is not None else np.arange(1,len(pairs)+1)
+    return float(np.average(shares,weights=w)*budget)
 
 
 def freeze_role_forecast(root, season, week):
@@ -101,7 +103,7 @@ def freeze_role_forecast(root, season, week):
     cutoff=pd.Timestamp(meta['created_at'])
     history=history[history.kickoff.lt(cutoff)&history.kickoff.ge(cutoff-pd.Timedelta(days=365))&history.home_score.notna()&history.away_score.notna()]
     if history.duplicated(['game_id','player_id']).any(): raise ValueError('Duplicate player stats')
-    team_games=history.groupby(['team','game_id','kickoff'],as_index=False)[FIELDS].sum(min_count=1)
+    team_games=history.groupby(['team','game_id','kickoff','season'],as_index=False)[FIELDS].sum(min_count=1)
     current=schedule[schedule.season.eq(season)&schedule.week.eq(week)]
     if current.empty or current.kickoff.isna().any() or current.kickoff.le(now).any(): raise ValueError('Invalid target schedule')
     if current[['home_score','away_score']].notna().any().any(): raise ValueError('Target results already present')
@@ -110,7 +112,7 @@ def freeze_role_forecast(root, season, week):
         games=team_games[team_games.team.eq(team)].sort_values('kickoff').tail(5)
         if len(games)<3: raise ValueError(f'{team}: fewer than three historical team games')
         if games[FIELDS].isna().any().any(): raise ValueError('Incomplete team opportunity history')
-        weights=np.arange(1,len(games)+1,dtype=float); weights/=weights.sum()
+        weights=season_weights(games,season,'team_volume'); weights/=weights.sum()
         totals={s:float(games[s].to_numpy()@weights) for s in FIELDS}
         totals['targets']=min(totals['targets'],totals['attempts'])
         candidates=roster[roster.team.eq(team)&roster.position.isin(['QB','RB','WR','TE','K'])].copy()
@@ -141,11 +143,18 @@ def freeze_role_forecast(root, season, week):
             if r.position=='QB' and qb is None: row['review_flags']+='; Depth and usage do not establish a starter'
             for s in FIELDS: row[s]=np.nan
             for opportunity in ['targets','carries']:
-                row['_'+opportunity]=observed_workload(prior,team_games[team_games.team.eq(team)],opportunity,totals[opportunity])
+                row['_'+opportunity]=observed_workload(prior,team_games[team_games.team.eq(team)],opportunity,totals[opportunity],season)
             for s in ['receptions','receiving_yards','receiving_tds','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']:
                 found=baseline[baseline.stat.eq(s)]
                 row['_rate_'+s]=float(found.efficiency.iloc[0]) if len(found) and s not in ['fg_att','pat_att'] else np.nan
                 row['_estimate_'+s]=float(found.projection.iloc[0]) if len(found) else np.nan
+            # Reweight efficiency evidence separately from current-team workload.
+            efficiency=history[history.player_id.eq(r.player_id)].sort_values('kickoff').tail(10)
+            for stat,opportunity in [('receptions','targets'),('receiving_yards','targets'),('receiving_tds','targets'),('rushing_yards','carries'),('rushing_tds','carries'),('fg_made','fg_att'),('pat_made','pat_att')]:
+                valid=efficiency.dropna(subset=[stat,opportunity])
+                w=season_weights(valid,season,'player_rate',recency=False)
+                denominator=float(valid[opportunity]@w)
+                row['_rate_'+stat]=float(valid[stat]@w)/denominator if denominator>0 else np.nan
             player_rows.append(row)
         p=pd.DataFrame(player_rows)
         if p.empty: raise ValueError(f'{team}: no eligible candidates')
@@ -194,8 +203,8 @@ def freeze_role_forecast(root, season, week):
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
     players.to_parquet(folder/'predictions.parquet',index=False);players.to_csv(folder/'predictions.csv',index=False)
     teams.to_parquet(folder/'team_budgets.parquet',index=False)
-    info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),role_policy=ROLE_POLICY,
-              source_forecast=str(original.resolve()),method='Five-game team budget; normalized observed-game current-stint workload shares; depth/usage QB agreement; ten-game player efficiency',
+    info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),role_policy=ROLE_POLICY,season_weighting=season_policy(),
+              source_forecast=str(original.resolve()),method='Five-game team budget; current-season-weighted observed-game current-stint workload shares; depth/usage QB agreement; ten-game player efficiency',
               selection_reason='Default operational view for coherent team/player totals, not a demonstrated accuracy winner. Defense experiments remain research options.',
               uncertainty='No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.',
               input_hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[original/'predictions.parquet']},

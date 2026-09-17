@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-09-17 20:04:25.847307+00:00",
+  "earliest_kickoff": "2026-09-18 00:15:00+00:00",
+  "forecast_path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_defense_forecasts\\2026\\week_02\\20260917T200408320158Z_572b82c3",
+  "forecast_sha256": "3d7e94c1355819af95609edbe3d1ba06c4729628d9c8e79ee72dbe76ed0de47c",
+  "model_path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\models\\player_milestones\\20260917T011845058524Z_8575205d",
+  "model_manifest_sha256": "14068cc2de7f91000d24a3bc5bfe1a3323b18081470ac4b307dae304cbb779da",
+  "probabilities_sha256": "ae75b96d4c22d6c7572a830c5575bdaf3e72766eb941ee7e8427f1aba44d05fe",
+  "rows": 28938,
+  "status_counts": {
+    "experimental": 15542,
+    "projection_unavailable": 7952,
+    "limited_current_team_history": 5432,
+    "outside_training_support": 12
+  },
+  "semantics": "P(recorded game stat >= milestone); integer thresholds include equality. Conditional on existing role and observed participation. Not sportsbook settlement rules."
+}

@@ -8,7 +8,6 @@ import pandas as pd
 from .player_roles import FIELDS,checked_player_snapshot,audit_allocations,ROLE_POLICY
 from .player_matchup import split_context,fit_split,apply_split
 
-
 def adjust_allocations(players,budgets,factors):
     out=players.copy();totals=budgets.copy()
     for row in factors.itertuples():
