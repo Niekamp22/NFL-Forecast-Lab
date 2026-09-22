@@ -86,38 +86,11 @@ def observed_workload(prior, team_games, stat, budget, season=None):
     return float(np.average(shares,weights=w)*budget)
 
 
-def freeze_role_forecast(root, season, week):
-    root=Path(root)
-    target=root/'player_role_forecasts'/str(season)/f'week_{week:02d}'
-    if list(target.glob('*/manifest.json')):
-        saved,saved_meta,_=checked_player_snapshot(target,current=True)
-        if saved_meta.get('role_policy')==ROLE_POLICY:return saved
-    original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
-    now=pd.Timestamp.now(tz='UTC')
-    if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
-    sources=[Path(p) for p in meta['input_hashes']]
-    for p in sources:
-        if hashlib.sha256(p.read_bytes()).hexdigest()!=meta['input_hashes'][str(p)]: raise ValueError(f'Pinned source changed: {p}')
-    roster_path=next(p for p in sources if p.name=='player_week.parquet')
-    depth_path=roster_path.parent/'player_week_depth.parquet'
-    sources.append(depth_path)
-    roster=pd.read_parquet(roster_path)
-    roster=roster[roster.season.eq(season)&roster.week.eq(week)]
-    depth=pd.read_parquet(depth_path)
-    depth=depth[depth.season.eq(season)&depth.week.eq(week)&depth.depth_timestamp.le(now)]
-    schedule=pd.read_parquet(next(p for p in sources if p.name=='games.parquet'))
-    schedule=schedule[schedule.game_type.eq('REG')].copy()
-    schedule['kickoff']=pd.to_datetime(schedule.gameday.astype(str)+' '+schedule.gametime.astype(str)).dt.tz_localize('America/New_York').dt.tz_convert('UTC')
-    history=pd.concat([pd.read_parquet(p) for p in sources if p.name.startswith('stats_player_week_')],ignore_index=True)
-    history=history[history.season_type.eq('REG')]
-    history=history.merge(schedule[['game_id','kickoff','home_score','away_score']],on='game_id',validate='many_to_one')
-    cutoff=pd.Timestamp(meta['created_at'])
-    history=history[history.kickoff.lt(cutoff)&history.kickoff.ge(cutoff-pd.Timedelta(days=365))&history.home_score.notna()&history.away_score.notna()]
-    if history.duplicated(['game_id','player_id']).any(): raise ValueError('Duplicate player stats')
+def allocate_role_rows(history,roster,depth,current,long,season,week):
+    """Allocate from caller-supplied pregame inputs; no source loading or writes."""
+    if current.empty or history.kickoff.ge(current.kickoff.min()).any():
+        raise ValueError('Allocation history must precede the target slate')
     team_games=history.groupby(['team','game_id','kickoff','season'],as_index=False)[FIELDS].sum(min_count=1)
-    current=schedule[schedule.season.eq(season)&schedule.week.eq(week)]
-    if current.empty or current.kickoff.isna().any() or current.kickoff.le(now).any(): raise ValueError('Invalid target schedule')
-    if current[['home_score','away_score']].notna().any().any(): raise ValueError('Target results already present')
     outputs=[];budgets=[]
     for team, observations in long.groupby('team'):
         games=team_games[team_games.team.eq(team)].sort_values('kickoff').tail(5)
@@ -211,6 +184,42 @@ def freeze_role_forecast(root, season, week):
                             **{s:float(p[s].sum()) for s in FIELDS},unallocated_targets=float(reserve['targets']),unallocated_carries=float(reserve['carries'])))
     players=pd.concat(outputs,ignore_index=True);teams=pd.DataFrame(budgets)
     audit_allocations(players,teams)
+    return players,teams
+
+
+def freeze_role_forecast(root, season, week):
+    root=Path(root)
+    target=root/'player_role_forecasts'/str(season)/f'week_{week:02d}'
+    if list(target.glob('*/manifest.json')):
+        saved,saved_meta,_=checked_player_snapshot(target,current=True)
+        if saved_meta.get('role_policy')==ROLE_POLICY:return saved
+    original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
+    now=pd.Timestamp.now(tz='UTC')
+    if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
+    sources=[Path(p) for p in meta['input_hashes']]
+    for p in sources:
+        if hashlib.sha256(p.read_bytes()).hexdigest()!=meta['input_hashes'][str(p)]: raise ValueError(f'Pinned source changed: {p}')
+    roster_path=next(p for p in sources if p.name=='player_week.parquet')
+    depth_path=roster_path.parent/'player_week_depth.parquet'
+    sources.append(depth_path)
+    roster=pd.read_parquet(roster_path)
+    roster=roster[roster.season.eq(season)&roster.week.eq(week)]
+    depth=pd.read_parquet(depth_path)
+    depth=depth[depth.season.eq(season)&depth.week.eq(week)&depth.depth_timestamp.le(now)]
+    schedule=pd.read_parquet(next(p for p in sources if p.name=='games.parquet'))
+    schedule=schedule[schedule.game_type.eq('REG')].copy()
+    schedule['kickoff']=pd.to_datetime(schedule.gameday.astype(str)+' '+schedule.gametime.astype(str)).dt.tz_localize('America/New_York').dt.tz_convert('UTC')
+    history=pd.concat([pd.read_parquet(p) for p in sources if p.name.startswith('stats_player_week_')],ignore_index=True)
+    history=history[history.season_type.eq('REG')]
+    history=history.merge(schedule[['game_id','kickoff','home_score','away_score']],on='game_id',validate='many_to_one')
+    cutoff=pd.Timestamp(meta['created_at'])
+    history=history[history.kickoff.lt(cutoff)&history.kickoff.ge(cutoff-pd.Timedelta(days=365))&history.home_score.notna()&history.away_score.notna()]
+    if history.duplicated(['game_id','player_id']).any(): raise ValueError('Duplicate player stats')
+    team_games=history.groupby(['team','game_id','kickoff','season'],as_index=False)[FIELDS].sum(min_count=1)
+    current=schedule[schedule.season.eq(season)&schedule.week.eq(week)]
+    if current.empty or current.kickoff.isna().any() or current.kickoff.le(now).any(): raise ValueError('Invalid target schedule')
+    if current[['home_score','away_score']].notna().any().any(): raise ValueError('Target results already present')
+    players,teams=allocate_role_rows(history,roster,depth,current,long,season,week)
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
     players.to_parquet(folder/'predictions.parquet',index=False);players.to_csv(folder/'predictions.csv',index=False)
     teams.to_parquet(folder/'team_budgets.parquet',index=False)

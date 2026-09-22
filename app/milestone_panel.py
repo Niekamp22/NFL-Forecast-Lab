@@ -12,16 +12,23 @@ def milestone_history(meta_json):
 
 
 def render_milestones(root,season,week,defense,folder,meta,player_id,game_id,position,stat):
-    st.subheader('Milestone probabilities')
+    st.subheader('Historical milestone results')
     st.caption('175+ means at least 175, including exactly 175. Statistical milestones are not sportsbook settlement rules.')
     try:
         rates=season_hit_rates(milestone_history(json.dumps(meta,sort_keys=True)),player_id,season,stat,thresholds(stat))
-        st.markdown(f'**{season} actual hit rates**')
+        st.markdown(f'**{season}: what actually happened**')
+        rates['Games reaching milestone']=rates.apply(lambda r:f"{int(r['Hits'])} of {int(r['Recorded games'])} games",axis=1)
+        rates=rates[['Milestone','Games reaching milestone','Season hit rate %']] 
         st.dataframe(rates,hide_index=True,width='stretch',column_config={'Season hit rate %':st.column_config.NumberColumn('Season hit rate',format='%.1f%%')})
         st.caption('Hits / recorded games in this season across all teams, through the forecast’s saved data cutoff. Missing stats and unrecorded appearances are excluded. A 1/1 record is one observed result, not a 100% probability next game. These are stat hit rates, not model accuracy.')
     except (OSError,ValueError,KeyError,StopIteration) as exc:
         st.info(f'Season hit rates unavailable: {exc}')
-    st.markdown('**Model probability estimates**')
+    st.caption('Next-game milestone probabilities are not yet validated for the displayed projection. Historical results do not predict the next game.')
+    with st.expander('Experimental research: comparable-game estimates'):
+        render_research(root,season,week,defense,folder,meta,player_id,game_id,position,stat)
+
+
+def render_research(root,season,week,defense,folder,meta,player_id,game_id,position,stat):
     try:
         data=load_milestones(root,season,week,defense,folder,meta)
         if data is None:
@@ -41,7 +48,7 @@ def render_milestones(root,season,week,defense,folder,meta,player_id,game_id,pos
         display['Milestone']=display.threshold.map(lambda n:f'{n:g}+')
         display['Probability %']=100*display.probability
         display['Support']=display.apply(lambda r:'Sparse hit/miss evidence' if min(r.comparable_hits,r.comparable_games-r.comparable_hits)<10 else 'Comparable-game sample',axis=1)
-        st.dataframe(display[['Milestone','Probability %','comparable_hits','comparable_games','Support']],hide_index=True,width='stretch',column_config={'Probability %':st.column_config.ProgressColumn('Estimated probability',format='%.1f%%',min_value=0,max_value=100),'comparable_hits':'Historical hits','comparable_games':'Comparable games'})
+        st.dataframe(display[['Milestone','Probability %','comparable_hits','comparable_games','Support']],hide_index=True,width='stretch',column_config={'Probability %':st.column_config.ProgressColumn('Research estimate',format='%.1f%%',min_value=0,max_value=100),'comparable_hits':'Historical hits','comparable_games':'Comparable games'})
         st.caption(f"Comparable pregame averages span {available.comparable_expected_low.iloc[0]:.1f}–{available.comparable_expected_high.iloc[0]:.1f}. These are player-games, not independent players. Sparse tail estimates are especially uncertain.")
         st.download_button('Download milestone estimates',available.to_csv(index=False),f'{player_id}_{stat}_milestones.csv','text/csv')
         with st.expander('Historical probability checks and method'):

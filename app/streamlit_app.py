@@ -11,12 +11,15 @@ PROJECT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(PROJECT/'src'))
 sys.path.insert(0,str(PROJECT/'app'))
 from milestone_panel import render_milestones
+from weather_panel import render_weather
+from consumer_panel import player_browser, results_panel
+from nfl_model.consumer_views import matching_player_results, game_status, date_label
 from nfl_model.dashboard import available_weeks,load_forecast
 from nfl_model.models.player_roles import checked_player_snapshot
 from nfl_model.player_views import POSITION_STATS,PRIMARY,CARD_GROUPS,SHORT_LABELS,chronological_games,matchup_players,load_pinned_history,with_total_yards,blank_explanations
 
 st.set_page_config(page_title='NFL Forecast Lab',page_icon='🏈',layout='wide')
-st.markdown('''<style>.block-container{padding-top:2rem;max-width:1360px}
+st.markdown('''<style>.block-container{padding-top:4rem;max-width:1360px}
 h1{letter-spacing:-.045em} [data-testid="stMetric"]{padding:8px 0}
 [data-testid="stVerticalBlockBorderWrapper"]{border-radius:14px}
 button[kind="primary"]{border-radius:8px}</style>''',unsafe_allow_html=True)
@@ -48,7 +51,7 @@ try:
     season=st.sidebar.selectbox('Season',seasons,index=seasons.index(int(requested)) if requested.isdigit() and int(requested) in seasons else 0)
     choices=[w for s,w in weeks if s==season];requested=st.query_params.get('week','')
     week=st.sidebar.selectbox('Week',choices,index=choices.index(int(requested)) if requested.isdigit() and int(requested) in choices else 0)
-    model_label=st.sidebar.selectbox('Player forecast',['Role baseline','Defense-adjusted roles (experimental)'],index=1 if st.query_params.get('model')=='defense' else 0)
+    model_label=st.sidebar.selectbox('Player forecast',['Recent usage estimate','Defense-adjusted estimate (experimental)'],index=1 if st.query_params.get('model')=='defense' else 0)
     use_defense_roles=model_label.startswith('Defense')
     st.query_params['model']='defense' if use_defense_roles else 'baseline'
     scope=(season,week)
@@ -71,28 +74,60 @@ if os.environ.get('NFL_REVIEW_BUILD')!='1':
     st.sidebar.page_link('pages/2_Model_Research.py',label='Model research',icon='🔬')
 else:
     st.sidebar.info('Preview for feedback · Saved forecasts, not a live feed. Player projections and milestone probabilities are experimental.')
-st.sidebar.caption('Frozen forecasts · Provisional player model. Reload reads saved files only.')
+st.sidebar.caption('Saved estimates · Reload reads saved files; it does not fetch new stats or injuries.')
 if use_defense_roles:
     st.sidebar.caption('Defense-adjusted player workloads and yardage. Team scores and kickers unchanged. Historical comparison is at team level; player roles remain unvalidated.')
     if meta is not None:
         with st.sidebar.expander('Defense model comparison'):
             st.dataframe(pd.read_csv(folder/'evaluation.csv'),hide_index=True)
             st.caption('2024–2025 reused evaluation. Lower MAE is better. These are team-yardage errors, not player errors.')
+results=None
+if meta is not None:
+    try:
+        results=matching_player_results(root,season,week,use_defense_roles,meta)
+    except (OSError,ValueError,KeyError):
+        st.warning('Verified results could not be loaded for this forecast.')
+    try:
+        source_history=historical_data(json.dumps(meta,sort_keys=True))
+        input_date=date_label(source_history.kickoff.max())
+    except (OSError,ValueError,KeyError,StopIteration):
+        input_date='Unavailable'
+def render_freshness():
+    st.caption('Saved forecast · No live injury updates')
+    with st.expander('Forecast dates & data coverage'):
+        st.write('Team estimates saved: '+date_label(team_meta.get('created_at')))
+        if meta is not None:
+            st.write('Player estimates saved: '+date_label(meta.get('created_at')))
+            st.write('Latest recorded game in player inputs: '+input_date)
+        st.caption('Dates describe the saved inputs, not a live feed. A game starting does not automatically update its results here.')
+final_games=set() if results is None else set(results[2].loc[results[2].status.eq('graded'),'game_id'])
+
 game_id=st.query_params.get('game');player_id=st.query_params.get('player')
 if game_id and game_id not in set(games.game_id):
     st.warning('That matchup is not in this slate. Showing all matchups.');game_id=None;player_id=None
 
 if not game_id:
-    st.title('This week’s matchups')
+    st.title('Matchups & player estimates')
+    render_freshness()
     st.caption(f'{season} · WEEK {week} · {len(games)} GAMES · ALL TIMES EASTERN')
     st.write('Choose a matchup to explore both teams and their player projections.')
-    for day,day_games in games.groupby(games.local_kickoff.dt.date,sort=True):
+    if not players.empty:
+        with st.expander('Search players & compare weekly estimates'):
+            player_browser(players,go)
+    results_panel(results)
+    game_filter=st.radio('Show games',['All games','Upcoming','Started / final'],horizontal=True)
+    visible_games=games.copy()
+    started=visible_games.local_kickoff.le(pd.Timestamp.now(tz='UTC'))
+    if game_filter=='Upcoming': visible_games=visible_games[~started]
+    elif game_filter=='Started / final': visible_games=visible_games[started]
+    if visible_games.empty: st.info('No games in this view.')
+    for day,day_games in visible_games.groupby(games.local_kickoff.dt.date,sort=True):
         st.subheader(pd.Timestamp(day).strftime('%A, %B %d'))
         records=list(day_games.itertuples())
         for start in range(0,len(records),2):
             for column,game in zip(st.columns(2),records[start:start+2]):
                 with column.container(border=True):
-                    st.caption(game.local_kickoff.strftime('%I:%M %p ET'))
+                    st.caption(game.local_kickoff.strftime('%I:%M %p ET')+' · '+game_status(game.local_kickoff,game.game_id in final_games))
                     st.subheader(f'{game.away_team} at {game.home_team}')
                     a,b=st.columns(2)
                     a.metric(f'{game.away_team} projected',fmt(game.projected_away_score))
@@ -119,13 +154,16 @@ if player_id and player_id not in set(roster.player_id):
 
 if not player_id:
     st.title(label)
-    st.caption(game.local_kickoff.strftime('%A, %B %d · %I:%M %p ET'))
+    render_freshness()
+    st.caption(game.local_kickoff.strftime('%A, %B %d · %I:%M %p ET')+' · '+game_status(game.local_kickoff,game_id in final_games))
     a,b,c=st.columns(3)
     a.metric(f'{game.away_team} projected score',fmt(game.projected_away_score))
     b.metric(f'{game.home_team} projected score',fmt(game.projected_home_score))
     c.metric('Projected total',fmt(game.score_total))
     st.caption('Choose a position, then click a player for their full breakdown. Blank estimates remain unknown; role projections are provisional.')
-    st.caption('Player model: '+model_label)
+    st.caption('Estimate method: '+model_label)
+    if meta is not None: render_weather(meta,game_id,game.local_kickoff)
+    results_panel(results,game_id)
     for tab,position in zip(st.tabs(list(POSITION_STATS)),POSITION_STATS):
         with tab:
             for column,team in zip(st.columns(2),[game.away_team,game.home_team]):
@@ -147,7 +185,7 @@ if not player_id:
                                     for reason,fields in reasons.items():st.write(f"{', '.join(fields)}: {reason}")
                             if row.role=='QB role unresolved' or row.history_games==0:st.caption('⚠ '+row.role+' · '+str(row.history_games)+' recent team games')
                             elif 'Injury: ' in row.review_flags:st.caption('⚠ Availability review needed')
-    with st.expander('Unallocated workload and matchup notes'):
+    with st.expander('Workload not assigned to a player & matchup notes'):
         reserve=players[players.game_id.eq(game_id)&players.is_unallocated]
         st.dataframe(reserve[['team','attempts','targets','carries']],hide_index=True,width='stretch')
         st.write(f'{game.away_team}: {game.away_qb_review}')
@@ -159,8 +197,11 @@ if not player_id:
 player=roster.set_index('player_id').loc[player_id]
 st.caption(f'Matchups / {label} / {player.player_name}')
 st.title(str(player.player_name))
+render_freshness()
 st.caption(f'{player.team} · {player.position} · vs {player.opponent} · Week {week}')
-st.caption('Player model: '+model_label)
+st.caption('Estimate method: '+model_label)
+st.caption(game_status(game.local_kickoff,game_id in final_games))
+st.info('Why this estimate? Recent playing opportunities and production set the starting point. '+('The opponent’s recent defensive results adjust workload and yardage.' if use_defense_roles else 'Opponent strength is not included in this selected estimate.')+' Weather is informational only; injuries are not updated live.')
 st.subheader('Projected stat line')
 stats=POSITION_STATS[player.position]+(['total_yards'] if player.position=='RB' else [])
 stat_key=f'stat_{season}_{week}_{game_id}_{player_id}'
@@ -202,7 +243,8 @@ with st.expander('Role & availability'):
     a.metric('Recent games on current team',int(player.history_games))
     b.metric('Prior snap share','Unknown' if pd.isna(player.expected_snap_share) else f'{player.expected_snap_share:.0%}')
     st.caption('Prior snap share is observed usage, not a prediction of participation. Starter designations are unconfirmed.')
-with st.expander('How this projection was calculated',expanded=True):
+results_panel(results,game_id,player_id)
+with st.expander('How this projection was calculated'):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
     st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
     if meta.get('season_weighting'):

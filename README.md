@@ -8,7 +8,7 @@ Use a **private** GitHub repository. In Streamlit Community Cloud select branch 
 
 ## Data and updates
 
-This is a frozen snapshot, not a live data feed. Updating the code alone does not create new forecasts. Export a new reviewed bundle from the local forecasting project for a new slate. No model training or data downloads happen on app startup.
+Forecasts and player statistics are saved snapshots. Updating the code alone does not create new forecasts. Export a new reviewed bundle for a new slate. The matchup weather panel can request current Open-Meteo forecasts; weather never changes projections. No model training runs in the app.
 
 Source: nflverse historical data. Forecast bytes and original manifests are preserved. `artifact-map.json` resolves original references on Linux; content checksums still apply. Only the matchup/player review flow is included. Local research and administrative pages remain in the development project.
 
