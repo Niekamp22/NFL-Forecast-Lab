@@ -13,7 +13,7 @@ sys.path.insert(0,str(PROJECT/'app'))
 from milestone_panel import render_milestones
 from weather_panel import render_weather
 from consumer_panel import player_browser, results_panel
-from nfl_model.consumer_views import matching_player_results, game_status, date_label
+from nfl_model.consumer_views import matching_player_results, game_status, date_label, verified_game_scores
 from nfl_model.dashboard import available_weeks,load_forecast
 from nfl_model.models.player_roles import checked_player_snapshot
 from nfl_model.player_views import POSITION_STATS,PRIMARY,CARD_GROUPS,SHORT_LABELS,chronological_games,matchup_players,load_pinned_history,with_total_yards,blank_explanations
@@ -100,7 +100,8 @@ def render_freshness():
             st.write('Player estimates saved: '+date_label(meta.get('created_at')))
             st.write('Latest recorded game in player inputs: '+input_date)
         st.caption('Dates describe the saved inputs, not a live feed. A game starting does not automatically update its results here.')
-final_games=set() if results is None else set(results[2].loc[results[2].status.eq('graded'),'game_id'])
+final_scores=verified_game_scores(results)
+final_games=set(final_scores)
 
 game_id=st.query_params.get('game');player_id=st.query_params.get('player')
 if game_id and game_id not in set(games.game_id):
@@ -133,6 +134,9 @@ if not game_id:
                     a.metric(f'{game.away_team} projected',fmt(game.projected_away_score))
                     b.metric(f'{game.home_team} projected',fmt(game.projected_home_score))
                     st.caption(f'Projected total {game.score_total:.1f} · {game.home_team} win {game.p_home:.0%}')
+                    if game.game_id in final_scores:
+                        home,away=final_scores[game.game_id]
+                        st.write(f'Final: {game.away_team} {away:.0f} · {game.home_team} {home:.0f}')
                     if not budgets.empty:
                         unresolved=budgets[budgets.team.isin([game.away_team,game.home_team])&~budgets.qb_resolved]
                         if len(unresolved):st.caption('QB role review: '+', '.join(unresolved.team))
@@ -160,6 +164,9 @@ if not player_id:
     a.metric(f'{game.away_team} projected score',fmt(game.projected_away_score))
     b.metric(f'{game.home_team} projected score',fmt(game.projected_home_score))
     c.metric('Projected total',fmt(game.score_total))
+    if game_id in final_scores:
+        home,away=final_scores[game_id]
+        st.success(f'Verified final: {game.away_team} {away:.0f} · {game.home_team} {home:.0f}')
     st.caption('Choose a position, then click a player for their full breakdown. Blank estimates remain unknown; role projections are provisional.')
     st.caption('Estimate method: '+model_label)
     if meta is not None: render_weather(meta,game_id,game.local_kickoff)

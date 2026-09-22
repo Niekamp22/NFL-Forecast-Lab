@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from nfl_model.player_views import with_total_yards, POSITION_STATS
+from nfl_model.consumer_views import date_label
 
 
 def player_browser(players, go):
@@ -51,10 +52,32 @@ def results_panel(result, game_id=None, player_id=None):
         if game_id: rows = rows[rows.game_id.eq(game_id)]
         if player_id: rows = rows[rows.player_id.eq(player_id)]
         rows = rows.loc[rows.apply(lambda r: r.stat in POSITION_STATS.get(r.position,[]), axis=1).astype(bool)]
+        st.caption('Results checked: '+date_label(run['created_at']))
+        st.caption('Forecast saved: '+date_label(run.get('forecast_created_at')))
+        st.write('Compare the saved estimate with the recorded result. Average miss is the size of the error; lower is better. It is measured in the selected stat’s units, not a percentage.')
+        if rows.empty:
+            st.info('No result rows available for this selection.'); return
+        if not player_id:
+            a,b=st.columns(2)
+            position=a.selectbox('Results position',['All positions']+sorted(rows.position.unique()))
+            name=b.text_input('Find a player in results')
+            if position!='All positions': rows=rows[rows.position.eq(position)]
+            rows=rows[rows.player_name.str.contains(name,case=False,regex=False,na=False)]
+        choices=sorted(rows.stat.unique())
+        selected=st.selectbox('Results stat',['All stats']+choices,format_func=lambda s:s.replace('_',' ').title())
+        if selected!='All stats': rows=rows[rows.stat.eq(selected)]
         graded = rows[rows.status.eq('graded')]
-        st.caption(f"Results checked: {run['created_at']} · {len(graded)} graded player-stat observations. Missing results are excluded, never treated as zero.")
+        a,b,c=st.columns(3)
+        a.metric('Graded stat estimates',len(graded))
+        b.metric('Missing recorded stats',int(rows.status.eq('missing_player_stat').sum()))
+        c.metric('No saved estimate',int(rows.status.eq('no_forecast').sum()))
+        st.caption('Counts are player-stat entries, not distinct players. Missing results and unavailable forecasts are excluded from accuracy. Includes backups and recorded zeros; not starter-only accuracy.')
         if graded.empty:
             st.info('No verified player results available for this selection yet.'); return
-        st.dataframe(graded[['player_name','team','position','stat','projection','actual','error']].rename(columns={'error':'Projection minus actual'}),hide_index=True,width='stretch')
-        summary = graded.groupby(['position','stat']).error.agg(Observations='size',Average_miss=lambda s:s.abs().mean()).reset_index()
+        summary = graded.groupby(['position','stat']).error.agg(Observations='size',Average_miss=lambda s:s.abs().mean(),Average_bias='mean').reset_index()
+        summary=summary.rename(columns=lambda s:s.replace('_',' ').title())
+        st.caption('Average bias = projection minus actual. Negative means estimates ran low; positive means they ran high. Different stats are summarized separately.')
         st.dataframe(summary,hide_index=True,width='stretch')
+        display=graded[['player_name','team','position','stat','projection','actual','error']].rename(columns={'error':'Projection minus actual'})
+        st.dataframe(display,hide_index=True,width='stretch')
+        st.download_button('Download selected results',display.to_csv(index=False),'forecast_results.csv','text/csv')

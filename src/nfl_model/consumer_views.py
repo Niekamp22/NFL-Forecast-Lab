@@ -35,3 +35,16 @@ def date_label(value):
     if value is None or pd.isna(value):
         return 'Unavailable'
     return pd.Timestamp(value).tz_convert('America/New_York').strftime('%b %d, %Y · %I:%M %p ET')
+
+
+def verified_game_scores(result):
+    """Require explicit final-game evidence, including when all player stats are missing."""
+    if result is None:
+        return {}
+    rows=result[2]
+    if not {'game_result_status','home_score','away_score'}.issubset(rows.columns):
+        return {}
+    finals=rows.loc[rows.game_result_status.eq('graded'),['game_id','home_score','away_score']].drop_duplicates()
+    if finals.game_id.duplicated().any():
+        raise ValueError('Conflicting verified final scores')
+    return {r.game_id:(r.home_score,r.away_score) for r in finals.itertuples()}

@@ -23,9 +23,12 @@ def main() -> None:
     parser.add_argument("--defense-roles", action="store_true", help="Freeze defense-adjusted coherent role allocations")
     parser.add_argument("--milestones", action="store_true", help="Build and evaluate player milestone probabilities")
     parser.add_argument("--grade-players", action="store_true", help="Grade frozen role-based projections")
+    parser.add_argument("--grade-displayed", action="store_true", help="Grade the exact current-policy snapshot displayed in the app; preserves original grading")
     parser.add_argument("--with-players", action="store_true", help="Include role forecasts and player grading in run-week")
     parser.add_argument("--data-dir", type=Path, default=Path("data"))
     args = parser.parse_args()
+    if args.grade_displayed and not (args.command == 'project-players' and args.grade_players):
+        parser.error('--grade-displayed requires project-players --grade-players')
     Path("logs").mkdir(exist_ok=True)
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s",
                         handlers=[logging.StreamHandler(), logging.FileHandler("logs/ingestion.log")])
@@ -38,7 +41,7 @@ def main() -> None:
             print(build_milestones(args.data_dir, args.season[0], args.week, defense=args.defense_roles))
         elif args.grade_players:
             from .models.player_grading import grade_role_week
-            print(grade_role_week(client, args.season[0], args.week, args.force_refresh, defense=args.defense_roles))
+            print(grade_role_week(client, args.season[0], args.week, args.force_refresh, defense=args.defense_roles, current=args.grade_displayed))
         elif args.defense_roles:
             from .models.role_defense import freeze_defense_roles
             print(freeze_defense_roles(args.data_dir, args.season[0], args.week))
