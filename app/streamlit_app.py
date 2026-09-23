@@ -99,9 +99,20 @@ def render_freshness():
         if meta is not None:
             st.write('Player estimates saved: '+date_label(meta.get('created_at')))
             st.write('Latest recorded game in player inputs: '+input_date)
+            review=meta.get('availability_review')
+            if review:
+                st.write('Selected team injury/starter reports reviewed: '+date_label(review['reviewed_at']))
+                st.caption(review['scope'])
         st.caption('Dates describe the saved inputs, not a live feed. A game starting does not automatically update its results here.')
 final_scores=verified_game_scores(results)
 final_games=set(final_scores)
+
+def render_availability(row):
+    note=row.get('availability_note','')
+    if isinstance(note,str) and note:
+        if row.get('availability_action') in ['uncertain','unavailable']:st.warning(note)
+        else:st.info(note)
+        st.markdown('[Official team report]('+row['availability_source']+') · '+date_label(row['availability_published_at']))
 
 game_id=st.query_params.get('game');player_id=st.query_params.get('player')
 if game_id and game_id not in set(games.game_id):
@@ -141,7 +152,7 @@ if not game_id:
                         unresolved=budgets[budgets.team.isin([game.away_team,game.home_team])&~budgets.qb_resolved]
                         if len(unresolved):st.caption('QB role review: '+', '.join(unresolved.team))
                     st.button('View matchup →',key=f'game_{game.game_id}',on_click=go,args=(game.game_id,),width='stretch',type='primary')
-    st.caption('Scores and probabilities are from the frozen team model. They do not account for unresolved QB changes.')
+    st.caption('Scores and probabilities are from the frozen team model. They have not been revised for the reviewed injury or starter announcements.')
     st.stop()
 
 game=games.set_index('game_id').loc[game_id]
@@ -170,6 +181,13 @@ if not player_id:
     st.caption('Choose a position, then click a player for their full breakdown. Blank estimates remain unknown; role projections are provisional.')
     st.caption('Estimate method: '+model_label)
     if meta is not None: render_weather(meta,game_id,game.local_kickoff)
+    reviewed=roster[roster.get('availability_note',pd.Series('',index=roster.index)).fillna('').ne('')]
+    if not reviewed.empty:
+        with st.expander('Reviewed injury and starter updates',expanded=True):
+            for item in reviewed.to_dict('records'):
+                st.markdown('**'+item['player_name']+'**')
+                render_availability(item)
+            st.caption('Player estimates reflect the changes described here. Team score estimates do not include these news updates.')
     results_panel(results,game_id)
     for tab,position in zip(st.tabs(list(POSITION_STATS)),POSITION_STATS):
         with tab:
@@ -190,6 +208,7 @@ if not player_id:
                             if reasons:
                                 with st.expander('Why are some stats blank?'):
                                     for reason,fields in reasons.items():st.write(f"{', '.join(fields)}: {reason}")
+                            render_availability(row._asdict())
                             if row.role=='QB role unresolved' or row.history_games==0:st.caption('⚠ '+row.role+' · '+str(row.history_games)+' recent team games')
                             elif 'Injury: ' in row.review_flags:st.caption('⚠ Availability review needed')
     with st.expander('Workload not assigned to a player & matchup notes'):
@@ -197,7 +216,7 @@ if not player_id:
         st.dataframe(reserve[['team','attempts','targets','carries']],hide_index=True,width='stretch')
         st.write(f'{game.away_team}: {game.away_qb_review}')
         st.write(f'{game.home_team}: {game.home_qb_review}')
-        st.caption('Reserved shares are not assigned to a guessed starter. Team scores and player stat totals are separate models.')
+        st.caption('Reserved shares are not assigned to a guessed starter. Team scores and player stat totals are separate models. These team scores have not been revised for the reviewed injury or starter announcements.')
     st.download_button('Download matchup projections',roster.to_csv(index=False),f'{game_id}_players.csv','text/csv')
     st.stop()
 
@@ -208,6 +227,7 @@ render_freshness()
 st.caption(f'{player.team} · {player.position} · vs {player.opponent} · Week {week}')
 st.caption('Estimate method: '+model_label)
 st.caption(game_status(game.local_kickoff,game_id in final_games))
+render_availability(player)
 st.info('Why this estimate? Recent playing opportunities and production set the starting point. '+('The opponent’s recent defensive results adjust workload and yardage.' if use_defense_roles else 'Opponent strength is not included in this selected estimate.')+' Weather is informational only; injuries are not updated live.')
 st.subheader('Projected stat line')
 stats=POSITION_STATS[player.position]+(['total_yards'] if player.position=='RB' else [])
@@ -249,11 +269,13 @@ with st.expander('Role & availability'):
     a,b=st.columns(2)
     a.metric('Recent games on current team',int(player.history_games))
     b.metric('Prior snap share','Unknown' if pd.isna(player.expected_snap_share) else f'{player.expected_snap_share:.0%}')
-    st.caption('Prior snap share is observed usage, not a prediction of participation. Starter designations are unconfirmed.')
+    st.caption('Prior snap share is observed usage, not a prediction of participation. Only explicitly labeled team-announced starters have reviewed confirmation.')
+    if player.get('shortened_games_excluded',0)>0:
+        st.write(f"Workload estimate uses {int(player.workload_history_games)} recent team games after excluding {int(player.shortened_games_excluded)} verified injury-shortened appearances. Historical results and hit rates retain those appearances.")
 results_panel(results,game_id,player_id)
 with st.expander('How this projection was calculated'):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
-    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
     if meta.get('season_weighting'):
         st.caption(f"For workload shares, each {season} appearance gets {meta['season_weighting']['player_share']}× the weight of an equally recent older appearance. Older games still stabilize small samples. Team-volume, efficiency, and defensive weighting remain unchanged after historical checks.")
     if use_defense_roles:
@@ -267,7 +289,9 @@ with st.expander('How this projection was calculated'):
             rate=player[production]/player[workload]
             share=player[workload]/team_budget[workload] if team_budget[workload]>0 else 0
             st.write(f'{player[workload]:.1f} {workload} ({share:.1%} of team budget) × {rate:.2f} yards per opportunity = {player[production]:.1f} {production.replace("_"," ")}.')
-    if player.position=='QB':st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
+    if meta.get('availability_review'):
+        st.write('Reviewed team announcements can establish the starting quarterback. Verified injury-shortened appearances are excluded from workload shares only. Confirmed unavailable players receive no estimate; their unassigned workload stays reserved. Injury uncertainty is shown without a guessed numerical penalty.')
+    if player.position=='QB' and meta.get('role_policy')!='reviewed_availability_v5':st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
     if player.position=='K':st.write('Field-goal and extra-point attempts are allocated within recent team budgets; projected makes use historical conversion rates. Unknown shares stay reserved.')
     st.caption('Efficiencies use up to 10 prior games. Displayed multiplication may differ slightly due to rounding. No calibrated uncertainty intervals are available.'+(' Opponent multipliers are included in this selected version.' if use_defense_roles else ' This baseline has no opponent adjustment.'))
 with st.expander('Matchup context & source timing'):

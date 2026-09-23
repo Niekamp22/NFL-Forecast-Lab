@@ -1,0 +1,150 @@
+{
+  "season": 2026,
+  "week": 3,
+  "reviewed_at": "2026-09-23T00:50:00Z",
+  "scope": "Selected official team reports; not a complete league-wide injury report or live feed.",
+  "players": [
+    {
+      "team": "ATL",
+      "player_id": "00-0039917",
+      "player_name": "Michael Penix Jr.",
+      "action": "starter",
+      "published_at": "2026-09-21T16:29:00-04:00",
+      "source_url": "https://www.atlantafalcons.com/news/michael-penix-jr-starting-qb-thursday-night-football-vs-packers",
+      "note": "Named Week 3 starter after knee rehabilitation.",
+      "shortened_games": []
+    },
+    {
+      "team": "MIN",
+      "player_id": "00-0035228",
+      "player_name": "Kyler Murray",
+      "action": "starter",
+      "published_at": "2026-09-21T13:34:00-04:00",
+      "source_url": "https://www.vikings.com/news/kyler-murray-starting-quarterback-week-3-buccaneers-injury",
+      "note": "Cleared concussion protocol; named Week 3 starter. Week 1 ended after 11 snaps.",
+      "shortened_games": [
+        "2026_01_GB_MIN"
+      ]
+    },
+    {
+      "team": "WAS",
+      "player_id": "00-0032268",
+      "player_name": "Marcus Mariota",
+      "action": "starter",
+      "published_at": "2026-09-21T17:51:00-04:00",
+      "source_url": "https://www.commanders.com/news/jayden-daniels-dan-quinn-commanders",
+      "note": "Coach named Mariota starter while Daniels undergoes elbow evaluation.",
+      "shortened_games": []
+    },
+    {
+      "team": "WAS",
+      "player_id": "00-0039910",
+      "player_name": "Jayden Daniels",
+      "action": "unavailable",
+      "published_at": "2026-09-21T17:51:00-04:00",
+      "source_url": "https://www.commanders.com/news/jayden-daniels-dan-quinn-commanders",
+      "note": "Dislocated elbow; Mariota named starter for now. Withheld from this reviewed slate; no recovery timetable asserted.",
+      "shortened_games": []
+    },
+    {
+      "team": "BUF",
+      "player_id": "00-0034827",
+      "player_name": "DJ Moore",
+      "action": "uncertain",
+      "published_at": "2026-09-17T21:33:00-04:00",
+      "source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore",
+      "note": "Left Week 2 before halftime with shoulder/stinger injury. Week 3 availability unconfirmed; estimate assumes normal participation.",
+      "shortened_games": [
+        "2026_02_DET_BUF"
+      ]
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0039918",
+      "player_name": "Caleb Williams",
+      "action": "uncertain",
+      "published_at": "2026-09-21T16:10:00-04:00",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury",
+      "note": "Hamstring injury; week-to-week, not ruled out. Estimate conditional on starting with normal participation.",
+      "shortened_games": [
+        "2026_02_MIN_CHI"
+      ]
+    },
+    {
+      "team": "NYG",
+      "player_id": "00-0040691",
+      "player_name": "Jaxson Dart",
+      "action": "uncertain",
+      "published_at": "2026-09-22T15:09:00-04:00",
+      "source_url": "https://www.giants.com/news/jaxson-dart-knee-injury-update-status-jameis-winston",
+      "note": "Knee evaluation ongoing; no confirmed return timetable or Week 3 starter.",
+      "shortened_games": [
+        "2026_02_NYG_LA"
+      ]
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0034869",
+      "player_name": "Sam Darnold",
+      "action": "uncertain",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Glute injury; practice return planned, Week 3 start unconfirmed.",
+      "shortened_games": [
+        "2026_01_NE_SEA"
+      ]
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0041512",
+      "player_name": "Jadarian Price",
+      "action": "uncertain",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Left Week 2 with chest/shoulder injury; being monitored, no long-term concern reported. Estimate assumes normal participation.",
+      "shortened_games": [
+        "2026_02_SEA_ARI"
+      ]
+    },
+    {
+      "team": "GB",
+      "player_id": "00-0039146",
+      "player_name": "Jayden Reed",
+      "action": "uncertain",
+      "published_at": "2026-09-21T23:59:00-04:00",
+      "source_url": "https://www.packers.com/news/packers-falcons-injury-report-sept-21-2026",
+      "note": "Neck injury; Monday estimated nonparticipant. No final game designation; estimate assumes normal participation.",
+      "shortened_games": []
+    },
+    {
+      "team": "LAC",
+      "player_id": "00-0033885",
+      "player_name": "David Njoku",
+      "action": "unavailable",
+      "published_at": "2026-09-21T14:47:00-04:00",
+      "source_url": "https://www.chargers.com/news/charlie-kolar-david-njoku-injured-reserve-fantasy",
+      "note": "Fibula injury; team announced impending injured reserve placement, minimum four games.",
+      "shortened_games": []
+    },
+    {
+      "team": "LAC",
+      "player_id": "00-0038046",
+      "player_name": "Charlie Kolar",
+      "action": "unavailable",
+      "published_at": "2026-09-21T14:47:00-04:00",
+      "source_url": "https://www.chargers.com/news/charlie-kolar-david-njoku-injured-reserve-fantasy",
+      "note": "Forearm injury; team announced impending injured reserve placement, minimum four games.",
+      "shortened_games": []
+    },
+    {
+      "team": "LAC",
+      "player_id": "00-0040189",
+      "player_name": "Oronde Gadsden II",
+      "action": "note",
+      "published_at": "2026-09-21T14:47:00-04:00",
+      "source_url": "https://www.chargers.com/news/charlie-kolar-david-njoku-injured-reserve-fantasy",
+      "note": "Only active-roster TE at report time; additional signings possible. Unassigned injured-player targets remain reserved until replacement usage is supported.",
+      "shortened_games": []
+    }
+  ]
+}

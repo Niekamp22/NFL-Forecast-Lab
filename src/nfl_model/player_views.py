@@ -44,7 +44,13 @@ def blank_explanations(player,stats):
     reasons={}
     for stat in stats:
         if pd.notna(player.get(stat,float('nan'))):continue
-        if stat=='total_yards':
+        if player.get('role')=='Unavailable for this slate':
+            reason='Projection withheld based on the reviewed team availability report; see the source above.'
+        elif player.get('role')=='Backup QB; starter announced':
+            reason='Another quarterback is the announced starter; backup workload is not forecast.'
+        elif player.get('workload_history_games')==0 and player.get('shortened_games_excluded',0)>0 and stat in ['targets','carries','rushing_yards','rushing_tds','receiving_yards','receptions','receiving_tds']:
+            reason='Only injury-shortened appearances are available on this team; no normal-participation workload estimate is supported.'
+        elif stat=='total_yards':
             reason='Requires both rushing and receiving yards; at least one is unavailable.'
         elif player.get('position')=='QB' and stat in ['attempts','completions','passing_yards','passing_tds','passing_interceptions'] and player.get('role')=='QB role unresolved':
             reason='No passing workload assigned to this QB; starter evidence is unresolved or another QB holds the likely-starter role.'

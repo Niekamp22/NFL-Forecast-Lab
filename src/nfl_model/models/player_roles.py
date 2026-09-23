@@ -9,12 +9,13 @@ import pandas as pd
 
 from .weekly_forecast import earliest_snapshot
 from ..season_weighting import weights as season_weights,policy as season_policy
+from ..availability import load_availability, validate_availability, workload_history
 
 FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interceptions',
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-ROLE_POLICY = 'current_season_qb_v4'
+ROLE_POLICY = 'reviewed_availability_v5'
 
 
 def checked_player_snapshot(root, current=False):
@@ -23,10 +24,10 @@ def checked_player_snapshot(root, current=False):
         candidates=[]
         for path in Path(root).glob('*/manifest.json'):
             item=json.loads(path.read_text())
-            if item.get('role_policy')==ROLE_POLICY and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
-                candidates.append((pd.Timestamp(item['created_at']),str(path.parent),item))
+            if item.get('role_policy') in [ROLE_POLICY, 'current_season_qb_v4'] and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
+                candidates.append((item.get('role_policy') != ROLE_POLICY, -pd.Timestamp(item['created_at']).value,str(path.parent),item))
         if candidates:
-            _,selected,meta=min(candidates,key=lambda x:x[:2]);folder=Path(selected)
+            _,_,selected,meta=min(candidates,key=lambda x:x[:3]);folder=Path(selected)
     path = folder/'predictions.parquet'
     if hashlib.sha256(path.read_bytes()).hexdigest() != meta['predictions_sha256']:
         raise ValueError('Player prediction checksum mismatch')
@@ -86,10 +87,12 @@ def observed_workload(prior, team_games, stat, budget, season=None):
     return float(np.average(shares,weights=w)*budget)
 
 
-def allocate_role_rows(history,roster,depth,current,long,season,week):
+def allocate_role_rows(history,roster,depth,current,long,season,week,availability=None):
     """Allocate from caller-supplied pregame inputs; no source loading or writes."""
     if current.empty or history.kickoff.ge(current.kickoff.min()).any():
         raise ValueError('Allocation history must precede the target slate')
+    validate_availability(availability,roster,history,current)
+    updates={(i['team'],i['player_id']):i for i in (availability or {}).get('players',[])}
     team_games=history.groupby(['team','game_id','kickoff','season'],as_index=False)[FIELDS].sum(min_count=1)
     outputs=[];budgets=[]
     for team, observations in long.groupby('team'):
@@ -101,7 +104,8 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
         totals['targets']=min(totals['targets'],totals['attempts'])
         candidates=roster[roster.team.eq(team)&roster.position.isin(['QB','RB','WR','TE','K'])].copy()
         # Current eligibility does not certify game-day participation.
-        candidates=candidates[candidates.roster_status.eq('ACT')&~candidates.injury_status.eq('Out').fillna(False)]
+        reviewed_ids=[pid for (t,pid) in updates if t==team]
+        candidates=candidates[(candidates.roster_status.eq('ACT')&~candidates.injury_status.eq('Out').fillna(False))|candidates.player_id.isin(reviewed_ids)]
         game=current[current.home_team.eq(team)|current.away_team.eq(team)].iloc[0]
         teamhist=history[history.team.eq(team)&history.game_id.isin(games.game_id)]
         old_weights={gid:w for gid,w in zip(games.game_id,weights)}
@@ -113,9 +117,16 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
         latest_qb=qb_stats[qb_stats.game_id.eq(games.iloc[-1].game_id)]
         last_leader=latest_qb.loc[latest_qb.attempts.idxmax(),'player_id'] if not latest_qb.empty else None
         qb=resolve_current_qb(qb_depth,latest_qb,candidates.player_id)
+        announced=[i['player_id'] for (t,_),i in updates.items() if t==team and i['action']=='starter']
+        if announced: qb=announced[0]
+        if qb is not None and updates.get((team,qb),{}).get('action')=='unavailable': qb=None
         player_rows=[]
         for r in candidates.itertuples():
             prior=current_stint(history,r.player_id,team)
+            update=updates.get((team,r.player_id),{})
+            workload=workload_history(prior,update)
+            unavailable=update.get('action')=='unavailable'
+            inactive_qb=bool(announced) and r.position=='QB' and r.player_id!=qb
             baseline=observations[observations.player_id.eq(r.player_id)]
             row=dict(season=season,week=week,game_id=game.game_id,kickoff_utc=game.kickoff,team=team,
                      opponent=game.away_team if team==game.home_team else game.home_team,
@@ -124,10 +135,19 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
                      history_games=int(prior.game_id.nunique()),
                      expected_snap_share=getattr(r,'prior_offensive_snap_pct_3',np.nan),
                      review_flags='Conditional role estimate; game-day active status unknown'+('; No recent usage on this team' if prior.empty else '')+('; Injury report unknown' if pd.isna(r.injury_status) else f'; Injury: {r.injury_status}'))
+            row.update(availability_action=update.get('action','unreviewed'),availability_note=update.get('note',''),
+                       availability_source=update.get('source_url',''),availability_published_at=update.get('published_at',''),
+                       workload_history_games=int(workload.game_id.nunique()),shortened_games_excluded=len(prior)-len(workload))
+            if update:
+                row['review_flags']='Reviewed team report: '+update['note']
+            if len(workload)<len(prior):row['review_flags']+='; Verified injury-shortened games excluded from workload shares only; actual results retained'
+            if announced and r.player_id==qb:row['role']='Team-announced starting QB'
+            if inactive_qb:row['role']='Backup QB; starter announced'
+            if unavailable:row['role']='Unavailable for this slate'
             if r.position=='QB' and qb is None: row['review_flags']+='; Depth and usage do not establish a starter'
             for s in FIELDS: row[s]=np.nan
             for opportunity in ['targets','carries']:
-                row['_'+opportunity]=observed_workload(prior,team_games[team_games.team.eq(team)],opportunity,totals[opportunity],season)
+                row['_'+opportunity]=0. if unavailable or inactive_qb else observed_workload(workload,team_games[team_games.team.eq(team)],opportunity,totals[opportunity],season)
             for s in ['receptions','receiving_yards','receiving_tds','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']:
                 found=baseline[baseline.stat.eq(s)]
                 row['_rate_'+s]=float(found.efficiency.iloc[0]) if len(found) and s not in ['fg_att','pat_att'] else np.nan
@@ -147,7 +167,7 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
                  'position':'TEAM','is_unallocated':True,'role':'Unassigned workload','history_games':len(games),'review_flags':'Excluded players, missing rates, or unresolved starter; not a named-player prediction',**{s:0.0 for s in FIELDS}}
         for opportunity,derived in [('targets',['receptions','receiving_yards','receiving_tds']),('carries',['rushing_yards','rushing_tds'])]:
             values,remaining=allocate(totals[opportunity],p['_'+opportunity],float(games[opportunity].to_numpy()@weights))
-            known=p.history_games.gt(0)
+            known=p.workload_history_games.gt(0)&~p.role.isin(['Unavailable for this slate','Backup QB; starter announced'])
             p.loc[known,opportunity]=values[known.to_numpy()]
             reserve[opportunity]=remaining
             for stat in derived:
@@ -169,7 +189,7 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
             else: reserve[stat]=totals[stat]
         # Kicker budgets use the same opportunity allocation rule.
         for attempted,made in [('fg_att','fg_made'),('pat_att','pat_made')]:
-            k=p.position.eq('K')
+            k=p.position.eq('K')&~p.role.eq('Unavailable for this slate')
             kw=p.loc[k,'_estimate_'+attempted].fillna(0).to_numpy()
             assigned,left=allocate(totals[attempted],kw,totals[attempted])
             p.loc[k,attempted]=assigned
@@ -189,10 +209,14 @@ def allocate_role_rows(history,roster,depth,current,long,season,week):
 
 def freeze_role_forecast(root, season, week):
     root=Path(root)
+    now=pd.Timestamp.now(tz='UTC')
+    availability_path,availability=load_availability(root,season,week,now)
+    availability_hash=hashlib.sha256(availability_path.read_bytes()).hexdigest() if availability_path else None
     target=root/'player_role_forecasts'/str(season)/f'week_{week:02d}'
     if list(target.glob('*/manifest.json')):
         saved,saved_meta,_=checked_player_snapshot(target,current=True)
-        if saved_meta.get('role_policy')==ROLE_POLICY:return saved
+        if (saved_meta.get('role_policy')==ROLE_POLICY and saved_meta.get('availability_sha256')==availability_hash
+            and saved_meta.get('availability_pinned',False)):return saved
     original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
     now=pd.Timestamp.now(tz='UTC')
     if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
@@ -219,12 +243,17 @@ def freeze_role_forecast(root, season, week):
     current=schedule[schedule.season.eq(season)&schedule.week.eq(week)]
     if current.empty or current.kickoff.isna().any() or current.kickoff.le(now).any(): raise ValueError('Invalid target schedule')
     if current[['home_score','away_score']].notna().any().any(): raise ValueError('Target results already present')
-    players,teams=allocate_role_rows(history,roster,depth,current,long,season,week)
+    players,teams=allocate_role_rows(history,roster,depth,current,long,season,week,availability)
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
+    if availability_path:
+        pinned=folder/'availability.json'
+        pinned.write_bytes(availability_path.read_bytes())
+        sources.append(pinned)
     players.to_parquet(folder/'predictions.parquet',index=False);players.to_csv(folder/'predictions.csv',index=False)
     teams.to_parquet(folder/'team_budgets.parquet',index=False)
     info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),role_policy=ROLE_POLICY,season_weighting=season_policy(),
-              source_forecast=str(original.resolve()),method='Five-game team budget; current-season-weighted observed-game current-stint workload shares; depth/usage QB agreement; ten-game player efficiency',
+              availability_sha256=availability_hash,availability_review=availability,availability_pinned=True,
+              source_forecast=str(original.resolve()),method='Five-game team budget; current-season-weighted observed-game current-stint workload shares; depth/usage QB agreement or reviewed team announcement; verified partial games excluded from workload shares; ten-game player efficiency',
               selection_reason='Default operational view for coherent team/player totals, not a demonstrated accuracy winner. Defense experiments remain research options.',
               uncertainty='No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.',
               input_hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[original/'predictions.parquet']},
