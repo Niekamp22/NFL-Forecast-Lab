@@ -113,6 +113,9 @@ def render_availability(row):
         if row.get('availability_action') in ['uncertain','unavailable']:st.warning(note)
         else:st.info(note)
         st.markdown('[Official team report]('+row['availability_source']+') · '+date_label(row['availability_published_at']))
+    added=row.get('replacement_added_targets',0.)
+    if pd.notna(added) and added>0:
+        st.info(f'Replacement opportunity estimate: +{added:.1f} baseline targets from confirmed unavailable tight ends. Opponent adjustment applies afterward when selected. This is an estimated role, not guaranteed usage.')
 
 game_id=st.query_params.get('game');player_id=st.query_params.get('player')
 if game_id and game_id not in set(games.game_id):
@@ -275,7 +278,10 @@ with st.expander('Role & availability'):
 results_panel(results,game_id,player_id)
 with st.expander('How this projection was calculated'):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
-    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5','te_replacement_v6'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    if meta.get('replacement_policy'):
+        st.write('Tight-end replacement targets: transfer 50% of the supported unavailable-TE target share to eligible TEs in proportion to prior usage, capped by the remaining team reserve. Players with uncertain availability receive no bonus. RB and WR replacement boosts are disabled.')
+        st.caption('Selected on 2022–2023; later-year 2024 check: target MAE 1.83 → 1.72 and yardage MAE 17.64 → 16.79 across 93 graded TE appearances, 36 changed. Historical roster proxies limit confidence; this is not prospective validation.')
     if meta.get('season_weighting'):
         st.caption(f"For workload shares, each {season} appearance gets {meta['season_weighting']['player_share']}× the weight of an equally recent older appearance. Older games still stabilize small samples. Team-volume, efficiency, and defensive weighting remain unchanged after historical checks.")
     if use_defense_roles:
@@ -290,8 +296,8 @@ with st.expander('How this projection was calculated'):
             share=player[workload]/team_budget[workload] if team_budget[workload]>0 else 0
             st.write(f'{player[workload]:.1f} {workload} ({share:.1%} of team budget) × {rate:.2f} yards per opportunity = {player[production]:.1f} {production.replace("_"," ")}.')
     if meta.get('availability_review'):
-        st.write('Reviewed team announcements can establish the starting quarterback. Verified injury-shortened appearances are excluded from workload shares only. Confirmed unavailable players receive no estimate; their unassigned workload stays reserved. Injury uncertainty is shown without a guessed numerical penalty.')
-    if player.position=='QB' and meta.get('role_policy')!='reviewed_availability_v5':st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
+        st.write('Reviewed team announcements can establish the starting quarterback. Verified injury-shortened appearances are excluded from workload shares only. Confirmed unavailable players receive no estimate. Most unassigned workload stays reserved; an eligible tight end can receive a limited share of a confirmed tight-end vacancy. Injury uncertainty is shown without a guessed numerical penalty.')
+    if player.position=='QB' and meta.get('role_policy') not in ['reviewed_availability_v5','te_replacement_v6']:st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
     if player.position=='K':st.write('Field-goal and extra-point attempts are allocated within recent team budgets; projected makes use historical conversion rates. Unknown shares stay reserved.')
     st.caption('Efficiencies use up to 10 prior games. Displayed multiplication may differ slightly due to rounding. No calibrated uncertainty intervals are available.'+(' Opponent multipliers are included in this selected version.' if use_defense_roles else ' This baseline has no opponent adjustment.'))
 with st.expander('Matchup context & source timing'):

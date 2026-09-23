@@ -1,0 +1,31 @@
+{
+  "version": "te_replacement_v1",
+  "strengths": {
+    "targets": {
+      "TE": 0.5
+    }
+  },
+  "selection_years": [
+    2022,
+    2023
+  ],
+  "evaluation_year": 2024,
+  "evaluation": {
+    "position": "TE",
+    "stat": "targets",
+    "selected_strength": 0.5,
+    "train_mae": 1.4450826354243085,
+    "test_games": 50,
+    "test_graded": 93,
+    "test_changed": 36,
+    "baseline_mae": 1.831995352322752,
+    "candidate_mae": 1.7234339472158744,
+    "baseline_yards_mae": 17.63751100808967,
+    "candidate_yards_mae": 16.790504721656433,
+    "improvement_ci_low": 0.0111032284554998,
+    "improvement_ci_high": 0.2287586822441946,
+    "promotion_gate": true
+  },
+  "selection_sha256": "9d262a1ccdee54bd2ec6dd4ac9235f7dc3c988cf3c5f847803aa7a1c346fa39c",
+  "limits": "Retrospective roster proxy and timestamped injury records; only 36 changed graded TE appearances. Not prospective validation. Confirmed unavailable TE workload only; no RB/WR boost, route data or depth-rank multiplier."
+}
