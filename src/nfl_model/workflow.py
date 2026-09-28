@@ -13,7 +13,7 @@ from .models.full_grading import grade_full_week
 
 def run_player_week(client,season,week,refresh=False):
     """Prepare missing player forecasts once; grade immutable forecasts on reruns."""
-    from .models.player_roles import freeze_role_forecast
+    from .models.player_roles import freeze_role_forecast, checked_player_snapshot
     from .models.player_projection import build_player_projections
     from .models.player_grading import grade_role_week
     root=client.root
@@ -21,9 +21,18 @@ def run_player_week(client,season,week,refresh=False):
     opportunity=root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}'
     if not list(role.glob('*/manifest.json')) and not list(opportunity.glob('*/manifest.json')):
         build_player_projections(client,season,week,opportunity_model=True)
-    forecast=freeze_role_forecast(root,season,week)
-    grading=grade_role_week(client,season,week,refresh)
-    return {'forecast':str(forecast),'grading':str(grading)}
+    # A result refresh must not rebuild a forecast, even if policy/news changed.
+    forecast=(checked_player_snapshot(role,current=True)[0]
+              if list(role.glob('*/manifest.json')) else freeze_role_forecast(root,season,week))
+    grading=grade_role_week(client,season,week,refresh,current=True)
+    result={'forecast':str(forecast),'grading':str(grading)}
+    defense=root/'player_role_defense_forecasts'/str(season)/f'week_{week:02d}'
+    if list(defense.glob('*/manifest.json')):
+        # The first grading call already refreshed the shared result sources.
+        defense_forecast=checked_player_snapshot(defense,current=True)[0]
+        defense_grading=grade_role_week(client,season,week,False,defense=True,current=True)
+        result['defense']={'forecast':str(defense_forecast),'grading':str(defense_grading)}
+    return result
 
 
 def run_week(client:NFLVerseClient,season:int,week:int,refresh:bool=False)->dict:
