@@ -1,0 +1,28 @@
+{
+  "policy_id": "wr_receiving_stability_v1",
+  "rate_strengths": {
+    "WR": {
+      "receiving_yards": 20
+    }
+  },
+  "workload_blend": 0,
+  "selection": "Prior strength selected on 2022-2023 early-season games; WR-only scope retained after reused 2024-2025 early and later checks.",
+  "later_validation": {
+    "seasons": [
+      2024,
+      2025
+    ],
+    "weeks": [
+      7,
+      18
+    ],
+    "observations": 1785,
+    "baseline_mae": 26.21162363397448,
+    "candidate_mae": 26.030158049897366,
+    "paired_week_interval": [
+      -0.3422506030084053,
+      -0.018877089204622
+    ]
+  },
+  "limits": "Small historical gain, not prospective validation or a betting edge. Historical roster proxies and missing actual rows limit coverage. No TE, RB, TD or workload changes. QB passing yards reconcile to receiving totals."
+}
