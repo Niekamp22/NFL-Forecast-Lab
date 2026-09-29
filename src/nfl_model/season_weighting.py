@@ -1,4 +1,8 @@
-"""Multipliers selected on historical season transitions, not live results."""
+"""Current-season emphasis; v7 player multipliers are a reviewed user preference.
+
+The stronger player weights trade stability for responsiveness. Historical
+component tests do not establish an accuracy improvement over the v6 policy.
+"""
 import json
 from pathlib import Path
 import numpy as np

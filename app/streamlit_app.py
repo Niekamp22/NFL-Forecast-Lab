@@ -99,6 +99,9 @@ def render_freshness():
         if meta is not None:
             st.write('Player estimates saved: '+date_label(meta.get('created_at')))
             st.write('Latest recorded game in player inputs: '+input_date)
+            weighting=meta.get('season_weighting')
+            if weighting:
+                st.caption(f"This saved forecast weights current-season player usage {weighting['player_share']}× and production-rate evidence {weighting['player_rate']}× relative to older games, before other recency weights. Later policy changes do not rewrite this forecast.")
             review=meta.get('availability_review')
             if review:
                 st.write('Selected team injury/starter reports reviewed: '+date_label(review['reviewed_at']))
@@ -129,7 +132,7 @@ if not game_id:
     if not players.empty:
         with st.expander('Search players & compare weekly estimates'):
             player_browser(players,go)
-    results_panel(results)
+    results_panel(results,predictions=players)
     game_filter=st.radio('Show games',['All games','Upcoming','Started / final'],horizontal=True)
     visible_games=games.copy()
     started=visible_games.local_kickoff.le(pd.Timestamp.now(tz='UTC'))
@@ -191,7 +194,7 @@ if not player_id:
                 st.markdown('**'+item['player_name']+'**')
                 render_availability(item)
             st.caption('Player estimates reflect the changes described here. Team score estimates do not include these news updates.')
-    results_panel(results,game_id)
+    results_panel(results,game_id,predictions=players)
     for tab,position in zip(st.tabs(list(POSITION_STATS)),POSITION_STATS):
         with tab:
             for column,team in zip(st.columns(2),[game.away_team,game.home_team]):
@@ -275,7 +278,7 @@ with st.expander('Role & availability'):
     st.caption('Prior snap share is observed usage, not a prediction of participation. Only explicitly labeled team-announced starters have reviewed confirmation.')
     if player.get('shortened_games_excluded',0)>0:
         st.write(f"Workload estimate uses {int(player.workload_history_games)} recent team games after excluding {int(player.shortened_games_excluded)} verified injury-shortened appearances. Historical results and hit rates retain those appearances.")
-results_panel(results,game_id,player_id)
+results_panel(results,game_id,player_id,predictions=players)
 with st.expander('How this projection was calculated'):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
     st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5','te_replacement_v6'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')

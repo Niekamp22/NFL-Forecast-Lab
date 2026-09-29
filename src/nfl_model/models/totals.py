@@ -7,7 +7,8 @@ import pandas as pd
 from .ratings import RatingConfig
 
 
-def fit_scoring(history: pd.DataFrame, teams: list[str], cutoff: pd.Timestamp, config: RatingConfig) -> tuple[np.ndarray, float]:
+def fit_scoring(history: pd.DataFrame, teams: list[str], cutoff: pd.Timestamp, config: RatingConfig,
+                current_season=None, season_multiplier=1.) -> tuple[np.ndarray, float]:
     """Fit points scored = intercept + own offense + opposing points-allowed effect.
 
     A home-advantage term (+0.5 home, -0.5 away; zero at neutral sites) models
@@ -33,6 +34,14 @@ def fit_scoring(history: pd.DataFrame, teams: list[str], cutoff: pd.Timestamp, c
             x[row, -1] = venue if game.location == "Home" else 0
             y[row] = points
     weights = np.exp2(-(cutoff-dates).dt.total_seconds().to_numpy()/86400/config.half_life_days)
+    if not np.isfinite(season_multiplier) or season_multiplier<=0:
+        raise ValueError('Season multiplier must be positive and finite')
+    if season_multiplier!=1.:
+        if current_season is None: raise ValueError('Explicit target season required')
+        weights*=np.where(history.season.eq(current_season),season_multiplier,1.)
+        # Keep total fit weight unchanged so this tests recency, not weaker shrinkage.
+        original=np.exp2(-(cutoff-dates).dt.total_seconds().to_numpy()/86400/config.half_life_days)
+        weights*=original.sum()/weights.sum()
     doubled = np.repeat(weights,2)
     penalty = np.eye(x.shape[1])*config.ridge
     penalty[0,0] = penalty[-1,-1] = 1e-8
@@ -41,7 +50,7 @@ def fit_scoring(history: pd.DataFrame, teams: list[str], cutoff: pd.Timestamp, c
     return coefficients, league_total
 
 
-def replay_totals(games: pd.DataFrame, config: RatingConfig, seasons: list[int]) -> tuple[pd.DataFrame,list[dict]]:
+def replay_totals(games: pd.DataFrame, config: RatingConfig, seasons: list[int], season_multiplier=1.) -> tuple[pd.DataFrame,list[dict]]:
     """Freeze each week's predictions using only earlier completed weeks."""
     if games.game_id.duplicated().any() or not games.location.isin(["Home","Neutral"]).all():
         raise ValueError("Duplicate games or unsupported venue")
@@ -51,7 +60,7 @@ def replay_totals(games: pd.DataFrame, config: RatingConfig, seasons: list[int])
         cutoff=pd.to_datetime(target.gameday).min()
         earlier=(games.season<season)|((games.season==season)&(games.week<week))
         history=games[earlier & games.home_score.notna() & games.away_score.notna() & (pd.to_datetime(games.gameday)<cutoff)]
-        beta,league=fit_scoring(history,teams,cutoff,config)
+        beta,league=fit_scoring(history,teams,cutoff,config,season,season_multiplier)
         states.append({"season":int(season),"week":int(week),"cutoff":str(cutoff),"last_training_date":str(history.gameday.max()),
                        "training_games":len(history),"teams":teams,"coefficients":beta.tolist(),"league_total":league})
         for g in target.itertuples():

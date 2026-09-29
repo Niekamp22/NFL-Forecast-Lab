@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 from nfl_model.player_views import with_total_yards, POSITION_STATS
 from nfl_model.consumer_views import date_label
+from nfl_model.accuracy import accuracy_cohorts, accuracy_summary
 
 
 def player_browser(players, go):
@@ -43,12 +44,14 @@ def player_browser(players, go):
         st.download_button('Download filtered overview', display.to_csv(index=False), 'weekly_player_overview.csv','text/csv')
 
 
-def results_panel(result, game_id=None, player_id=None):
+def results_panel(result, game_id=None, player_id=None, predictions=None):
     with st.expander('Saved projections vs actual results'):
         st.caption('Only results matched to the exact displayed forecast version are shown. A saved forecast is not proof of when it was published on the website.')
         if result is None:
             st.info('No verified results match this forecast version yet. Older forecast versions are not substituted.'); return
         _, run, rows = result
+        if predictions is not None:
+            rows=accuracy_cohorts(rows,predictions)
         if game_id: rows = rows[rows.game_id.eq(game_id)]
         if player_id: rows = rows[rows.player_id.eq(player_id)]
         rows = rows.loc[rows.apply(lambda r: r.stat in POSITION_STATS.get(r.position,[]), axis=1).astype(bool)]
@@ -57,6 +60,18 @@ def results_panel(result, game_id=None, player_id=None):
         st.write('Compare the saved estimate with the recorded result. Average miss is the size of the error; lower is better. It is measured in the selected stat’s units, not a percentage.')
         if rows.empty:
             st.info('No result rows available for this selection.'); return
+        if predictions is not None:
+            a,b=st.columns(2)
+            workload_options=['All workloads']+sorted(rows.workload_group.unique())
+            default_group='Substantial projected workload'
+            workload=a.selectbox('Projected workload group',workload_options,
+                index=workload_options.index(default_group) if not player_id and default_group in workload_options else 0)
+            experience=b.selectbox('Recent team history',['All history groups']+sorted(rows.experience_group.unique()))
+            if workload!='All workloads': rows=rows[rows.workload_group.eq(workload)]
+            if experience!='All history groups': rows=rows[rows.experience_group.eq(experience)]
+            st.caption('Groups use the saved forecast: QB 15+ pass attempts, RB 10+ carries, WR 5+ targets, TE 3+ targets, K 1+ field-goal attempt. These are workload thresholds, not confirmed starters. Team history covers up to five recent appearances; it does not identify rookies.')
+            if rows.empty:
+                st.info('No entries match these groups.'); return
         if not player_id:
             a,b=st.columns(2)
             position=a.selectbox('Results position',['All positions']+sorted(rows.position.unique()))
@@ -74,9 +89,12 @@ def results_panel(result, game_id=None, player_id=None):
         st.caption('Counts are player-stat entries, not distinct players. Missing results and unavailable forecasts are excluded from accuracy. Includes backups and recorded zeros; not starter-only accuracy.')
         if graded.empty:
             st.info('No verified player results available for this selection yet.'); return
-        summary = graded.groupby(['position','stat']).error.agg(Observations='size',Average_miss=lambda s:s.abs().mean(),Average_bias='mean').reset_index()
+        summary = accuracy_summary(rows)
+        summary['coverage']=(100*summary.coverage).round(1)
+        summary=summary.rename(columns={'coverage':'Recorded coverage %'})
         summary=summary.rename(columns=lambda s:s.replace('_',' ').title())
         st.caption('Average bias = projection minus actual. Negative means estimates ran low; positive means they ran high. Different stats are summarized separately.')
+        st.caption('Median miss describes a typical error; RMSE gives large misses more weight. Coverage is the percentage of saved estimates in verified final games with recorded stats. Small groups can fluctuate sharply.')
         st.dataframe(summary,hide_index=True,width='stretch')
         display=graded[['player_name','team','position','stat','projection','actual','error']].rename(columns={'error':'Projection minus actual'})
         st.dataframe(display,hide_index=True,width='stretch')

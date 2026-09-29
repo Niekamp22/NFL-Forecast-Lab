@@ -16,7 +16,7 @@ FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interc
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-ROLE_POLICY = 'te_replacement_v6'
+ROLE_POLICY = 'current_season_emphasis_v7'
 
 
 def checked_player_snapshot(root, current=False):
@@ -25,7 +25,7 @@ def checked_player_snapshot(root, current=False):
         candidates=[]
         for path in Path(root).glob('*/manifest.json'):
             item=json.loads(path.read_text())
-            if item.get('role_policy') in [ROLE_POLICY, 'reviewed_availability_v5', 'current_season_qb_v4'] and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
+            if item.get('role_policy') in [ROLE_POLICY, 'te_replacement_v6', 'reviewed_availability_v5', 'current_season_qb_v4'] and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
                 candidates.append((item.get('role_policy') != ROLE_POLICY, -pd.Timestamp(item['created_at']).value,str(path.parent),item))
         if candidates:
             _,_,selected,meta=min(candidates,key=lambda x:x[:3]);folder=Path(selected)
@@ -228,7 +228,8 @@ def freeze_role_forecast(root, season, week):
     if list(target.glob('*/manifest.json')):
         saved,saved_meta,_=checked_player_snapshot(target,current=True)
         if (saved_meta.get('role_policy')==ROLE_POLICY and saved_meta.get('availability_sha256')==availability_hash
-            and saved_meta.get('availability_pinned',False) and saved_meta.get('replacement_policy')==replacement_policy()):return saved
+            and saved_meta.get('availability_pinned',False) and saved_meta.get('replacement_policy')==replacement_policy()
+            and saved_meta.get('season_weighting')==season_policy()):return saved
     original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
     now=pd.Timestamp.now(tz='UTC')
     if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
