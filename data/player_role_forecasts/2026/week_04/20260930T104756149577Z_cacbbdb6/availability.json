@@ -1,0 +1,68 @@
+{
+  "season": 2026,
+  "week": 4,
+  "reviewed_at": "2026-09-30 10:44:06.818130+00:00",
+  "scope": "Historical partial-game facts carried from Week 3 evidence only. No Week 3 starter, unavailable, or uncertain status carried forward. Week 4 availability uses current source records and otherwise remains unknown. At the September 30 morning refresh, Week 4 injuries contain 10 practice records for PIT/CLE only and no final game designations. Missing reports are unknown, not clearance.",
+  "players": [
+    {
+      "team": "MIN",
+      "player_id": "00-0035228",
+      "player_name": "Kyler Murray",
+      "action": "note",
+      "published_at": "2026-09-21T13:34:00-04:00",
+      "source_url": "https://www.vikings.com/news/kyler-murray-starting-quarterback-week-3-buccaneers-injury",
+      "note": "Historical injury-shortened appearance only: 2026_01_GB_MIN. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+      "shortened_games": [
+        "2026_01_GB_MIN"
+      ]
+    },
+    {
+      "team": "BUF",
+      "player_id": "00-0034827",
+      "player_name": "DJ Moore",
+      "action": "note",
+      "published_at": "2026-09-17T21:33:00-04:00",
+      "source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore",
+      "note": "Historical injury-shortened appearance only: 2026_02_DET_BUF. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+      "shortened_games": [
+        "2026_02_DET_BUF"
+      ]
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0039918",
+      "player_name": "Caleb Williams",
+      "action": "note",
+      "published_at": "2026-09-21T16:10:00-04:00",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury",
+      "note": "Historical injury-shortened appearance only: 2026_02_MIN_CHI. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+      "shortened_games": [
+        "2026_02_MIN_CHI"
+      ]
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0034869",
+      "player_name": "Sam Darnold",
+      "action": "note",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Historical injury-shortened appearance only: 2026_01_NE_SEA. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+      "shortened_games": [
+        "2026_01_NE_SEA"
+      ]
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0041512",
+      "player_name": "Jadarian Price",
+      "action": "note",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Historical injury-shortened appearance only: 2026_02_SEA_ARI. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+      "shortened_games": [
+        "2026_02_SEA_ARI"
+      ]
+    }
+  ]
+}

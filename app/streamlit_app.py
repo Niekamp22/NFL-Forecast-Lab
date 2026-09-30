@@ -104,7 +104,7 @@ def render_freshness():
                 st.caption(f"This saved forecast weights current-season player usage {weighting['player_share']}× and production-rate evidence {weighting['player_rate']}× relative to older games, before other recency weights. Later policy changes do not rewrite this forecast.")
             review=meta.get('availability_review')
             if review:
-                st.write('Selected team injury/starter reports reviewed: '+date_label(review['reviewed_at']))
+                st.write('Availability evidence recorded: '+date_label(review['reviewed_at']))
                 st.caption(review['scope'])
         st.caption('Dates describe the saved inputs, not a live feed. A game starting does not automatically update its results here.')
 final_scores=verified_game_scores(results)

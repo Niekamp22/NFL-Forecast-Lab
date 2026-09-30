@@ -1,0 +1,184 @@
+{
+  "created_at": "2026-09-30 10:48:31.962539+00:00",
+  "earliest_kickoff": "2026-10-02 00:15:00+00:00",
+  "season": 2026,
+  "week": 4,
+  "players": 537,
+  "role_policy": "receiving_stability_v8",
+  "season_weighting": {
+    "defense_rate": 1,
+    "defense_volume": 1,
+    "player_rate": 2,
+    "player_share": 5,
+    "team_volume": 1
+  },
+  "availability_sha256": "1c13e2ff1ca870ea842146796eb64d0bf26532d751d616002fdbbeaf90827ecf",
+  "availability_review": {
+    "season": 2026,
+    "week": 4,
+    "reviewed_at": "2026-09-30 10:44:06.818130+00:00",
+    "scope": "Historical partial-game facts carried from Week 3 evidence only. No Week 3 starter, unavailable, or uncertain status carried forward. Week 4 availability uses current source records and otherwise remains unknown. At the September 30 morning refresh, Week 4 injuries contain 10 practice records for PIT/CLE only and no final game designations. Missing reports are unknown, not clearance.",
+    "players": [
+      {
+        "team": "MIN",
+        "player_id": "00-0035228",
+        "player_name": "Kyler Murray",
+        "action": "note",
+        "published_at": "2026-09-21T13:34:00-04:00",
+        "source_url": "https://www.vikings.com/news/kyler-murray-starting-quarterback-week-3-buccaneers-injury",
+        "note": "Historical injury-shortened appearance only: 2026_01_GB_MIN. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+        "shortened_games": [
+          "2026_01_GB_MIN"
+        ]
+      },
+      {
+        "team": "BUF",
+        "player_id": "00-0034827",
+        "player_name": "DJ Moore",
+        "action": "note",
+        "published_at": "2026-09-17T21:33:00-04:00",
+        "source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore",
+        "note": "Historical injury-shortened appearance only: 2026_02_DET_BUF. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+        "shortened_games": [
+          "2026_02_DET_BUF"
+        ]
+      },
+      {
+        "team": "CHI",
+        "player_id": "00-0039918",
+        "player_name": "Caleb Williams",
+        "action": "note",
+        "published_at": "2026-09-21T16:10:00-04:00",
+        "source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury",
+        "note": "Historical injury-shortened appearance only: 2026_02_MIN_CHI. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+        "shortened_games": [
+          "2026_02_MIN_CHI"
+        ]
+      },
+      {
+        "team": "SEA",
+        "player_id": "00-0034869",
+        "player_name": "Sam Darnold",
+        "action": "note",
+        "published_at": "2026-09-21T16:20:00-04:00",
+        "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+        "note": "Historical injury-shortened appearance only: 2026_01_NE_SEA. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+        "shortened_games": [
+          "2026_01_NE_SEA"
+        ]
+      },
+      {
+        "team": "SEA",
+        "player_id": "00-0041512",
+        "player_name": "Jadarian Price",
+        "action": "note",
+        "published_at": "2026-09-21T16:20:00-04:00",
+        "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+        "note": "Historical injury-shortened appearance only: 2026_02_SEA_ARI. Current Week 4 availability and starting role are unreviewed; estimate is conditional on participation.",
+        "shortened_games": [
+          "2026_02_SEA_ARI"
+        ]
+      }
+    ]
+  },
+  "availability_pinned": true,
+  "replacement_policy": {
+    "version": "te_replacement_v1",
+    "strengths": {
+      "targets": {
+        "TE": 0.5
+      }
+    },
+    "selection_years": [
+      2022,
+      2023
+    ],
+    "evaluation_year": 2024,
+    "evaluation": {
+      "position": "TE",
+      "stat": "targets",
+      "selected_strength": 0.5,
+      "train_mae": 1.4450826354243085,
+      "test_games": 50,
+      "test_graded": 93,
+      "test_changed": 36,
+      "baseline_mae": 1.831995352322752,
+      "candidate_mae": 1.7234339472158744,
+      "baseline_yards_mae": 17.63751100808967,
+      "candidate_yards_mae": 16.790504721656433,
+      "improvement_ci_low": 0.0111032284554998,
+      "improvement_ci_high": 0.2287586822441946,
+      "promotion_gate": true
+    },
+    "selection_sha256": "9d262a1ccdee54bd2ec6dd4ac9235f7dc3c988cf3c5f847803aa7a1c346fa39c",
+    "limits": "Retrospective roster proxy and timestamped injury records; only 36 changed graded TE appearances. Not prospective validation. Confirmed unavailable TE workload only; no RB/WR boost, route data or depth-rank multiplier."
+  },
+  "refinement_policy": {
+    "policy_id": "wr_receiving_stability_v1",
+    "rate_strengths": {
+      "WR": {
+        "receiving_yards": 20
+      }
+    },
+    "workload_blend": 0,
+    "selection": "Prior strength selected on 2022-2023 early-season games; WR-only scope retained after reused 2024-2025 early and later checks.",
+    "later_validation": {
+      "seasons": [
+        2024,
+        2025
+      ],
+      "weeks": [
+        7,
+        18
+      ],
+      "observations": 1785,
+      "baseline_mae": 26.21162363397448,
+      "candidate_mae": 26.030158049897366,
+      "paired_week_interval": [
+        -0.3422506030084053,
+        -0.018877089204622
+      ]
+    },
+    "limits": "Small historical gain, not prospective validation or a betting edge. Historical roster proxies and missing actual rows limit coverage. No TE, RB, TD or workload changes. QB passing yards reconcile to receiving totals."
+  },
+  "refinement_code_sha256": {
+    "operational_refinement.py": "96294d250ee263c0df47313f9f4f79678b0a3280d9ec41fa6fc755b9baea8047",
+    "player_refinement.py": "ff2deebedc49fe7afb63fb5027b11baf39fca89db964a045461d148124aa4bf1",
+    "receiving_stability.json": "618ee0c3a60eb39b7a193fe143fa6b9b394cf72cf47bd18b520f16ae80081ad6"
+  },
+  "source_forecast": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_opportunity_forecasts\\2026\\week_04\\20260930T104509874919Z_26e742c0",
+  "method": "Experimental defense-adjusted role allocation: team-level opportunity and yardage efficiency multipliers; fixed player shares, including reserves",
+  "selection_reason": "Opt-in comparison. Train 2022\u20132023, reused evaluation 2024\u20132025 at team level only; not a validation of historical player role allocations.",
+  "uncertainty": "No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.",
+  "input_hashes": {
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\processed\\20260930T104416509347Z_369e20a5\\player_week.parquet": "ec86f00a24903c6ce13459fb1a1ee2c5ee1f325f44091494b0705982af9f428f",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\schedules\\all\\20260930T104134478209Z_2fa1503d\\games.parquet": "d206cfa58da5788a2f37233c0e8018ccfc723f9f46532024ef245e391f4b7f20",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2021\\20260915T221423070662Z_e3f27b38\\stats_player_week_2021.parquet": "2c6894499e96dcf20b060969c607a0ff4e2018f369efad6e97d88abbe77b7277",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2022\\20260915T221424041343Z_c7378795\\stats_player_week_2022.parquet": "64c1684938b029d68e33d7852cbee918266c8ac7f30b4c097c0a8912b4384e52",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2023\\20260915T221424222529Z_4a76348d\\stats_player_week_2023.parquet": "ac776fbd7c9fefdb4069b72304f4c5fa05ae417acd49f6e4e27be14b9d7a4bbc",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2024\\20260915T221424383612Z_d7e67b17\\stats_player_week_2024.parquet": "847569d194ca3d96b5efcf91e6eac5e18780fc47568a713fd545a82d29d155c1",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2025\\20260915T221424546722Z_6dc62c97\\stats_player_week_2025.parquet": "2a461becaa9adb3c93a3074a3a31f1e960162a50163371a2d34e28393b5fff10",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2026\\20260930T104133357526Z_7b114304\\stats_player_week_2026.parquet": "b1e2afafb899f59cad67c2baf9882d38276ea071fd0cd4ad3bf5821ec7bd11d7",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\processed\\20260930T104416509347Z_369e20a5\\player_week_depth.parquet": "ce3fef56643691eaf6aceb696292991e528b801e0aaea535b440e5a00673a01f",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T104756149577Z_cacbbdb6\\availability.json": "1c13e2ff1ca870ea842146796eb64d0bf26532d751d616002fdbbeaf90827ecf",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_opportunity_forecasts\\2026\\week_04\\20260930T104509874919Z_26e742c0\\predictions.parquet": "1fa9d7736b74c5d04a389019c1cbe9afa9755c4d5fe7cdcd4c1e508822094609",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T104756149577Z_cacbbdb6\\predictions.parquet": "bb77d22d4ef1d7bb12e3755172d1b99561aecef45a40397c5c1236c0c3a43688",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T104756149577Z_cacbbdb6\\manifest.json": "9df3dd08595014d44e512f62130b4b2139e6015cff98568bd41b12a7267e324e",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T104756149577Z_cacbbdb6\\team_budgets.parquet": "ed76982bc98c265581eb945ebf63e4b0eed5c98461ddb8d6203e9191d84c04f1"
+  },
+  "predictions_sha256": "ccb0166ad8380cb40ca45eb7fe8efc894cc1822fe3685446404793c9282b2442",
+  "code_sha256": "1b2f14ca223e202684f6321da87c13fa45bc9c3ef6b5066f07186fc711a9ac0a",
+  "baseline_snapshot": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T104756149577Z_cacbbdb6",
+  "feature_cutoff": "2026-09-30 10:47:56.149577+00:00",
+  "models": {
+    "pass": {
+      "volume": 0.1625982600828657,
+      "rate": 0.19689280489870825
+    },
+    "rush": {
+      "volume": 0.13690914296881798,
+      "rate": 0.07072270616991844
+    }
+  },
+  "limits": "Passing multiplier learned on targets and also applied to attempts, catches, TDs and interceptions at unchanged per-opportunity rates. Rushing TDs scale with carries. No direct defense TD, interception, catch-rate or kicker adjustment. Team score forecast unchanged."
+}

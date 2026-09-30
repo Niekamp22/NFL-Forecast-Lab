@@ -26,6 +26,10 @@ def build_identity(players: pd.DataFrame, rosters: pd.DataFrame) -> tuple[pd.Dat
         extra = missing.rename(columns={"gsis_id": "player_id", "full_name": "player_name"})
         extra = extra[[c for c in master if c in extra]]
         master = pd.concat([master, extra], ignore_index=True)
+    # Player and weekly roster feeds can encode the same date as text or date.
+    # Preserve the source value as text rather than inferring missing dates.
+    if "birth_date" in master:
+        master["birth_date"] = master["birth_date"].astype("string")
     pieces = []
     for source, frame in [("players", players), ("weekly_rosters", rosters)]:
         for field in ID_FIELDS:
