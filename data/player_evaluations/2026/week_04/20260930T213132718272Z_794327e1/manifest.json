@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-09-30 21:31:32.718272+00:00",
+  "snapshot": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_04\\20260930T213019513131Z_1cf0d0f5",
+  "snapshot_hash": "db4dadf5a61784c2d7f2050c710aadb2773d7800685d28d1f419fd99ef25a18d",
+  "sources": [
+    {
+      "dataset": "schedules",
+      "season": null,
+      "version": "20260930T104134478209Z_2fa1503d",
+      "retrieved_at": "2026-09-30T10:41:34.634255+00:00",
+      "source_updated_at": "2026-09-30T10:36:56Z",
+      "asset_id": 600662171,
+      "url": "https://github.com/nflverse/nflverse-data/releases/download/schedules/games.parquet",
+      "sha256": "d206cfa58da5788a2f37233c0e8018ccfc723f9f46532024ef245e391f4b7f20",
+      "bytes": 521519,
+      "etag": "\"0x8DF1EDEC040BDFC\"",
+      "path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\schedules\\all\\20260930T104134478209Z_2fa1503d\\games.parquet"
+    },
+    {
+      "dataset": "play_by_play",
+      "season": 2026,
+      "version": "20260930T104134824550Z_f74bb45d",
+      "retrieved_at": "2026-09-30T10:41:35.010749+00:00",
+      "source_updated_at": "2026-09-30T09:03:08Z",
+      "asset_id": 600480001,
+      "url": "https://github.com/nflverse/nflverse-data/releases/download/pbp/play_by_play_2026.parquet",
+      "sha256": "13c887879fca82213b4ee91c1ed638ac1401c79b2e231192fe57edca883d7a99",
+      "bytes": 3648486,
+      "etag": "\"0x8DF1ED1A577CB4A\"",
+      "path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\play_by_play\\2026\\20260930T104134824550Z_f74bb45d\\play_by_play_2026.parquet"
+    },
+    {
+      "dataset": "player_stats",
+      "season": 2026,
+      "version": "20260930T104133357526Z_7b114304",
+      "retrieved_at": "2026-09-30T10:41:33.425136+00:00",
+      "source_updated_at": "2026-09-30T09:05:48Z",
+      "asset_id": 600486057,
+      "url": "https://github.com/nflverse/nflverse-data/releases/download/stats_player/stats_player_week_2026.parquet",
+      "sha256": "b1e2afafb899f59cad67c2baf9882d38276ea071fd0cd4ad3bf5821ec7bd11d7",
+      "bytes": 262007,
+      "etag": "\"0x8DF1ED204B17CD0\"",
+      "path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2026\\20260930T104133357526Z_7b114304\\stats_player_week_2026.parquet"
+    }
+  ],
+  "selection": "displayed current-policy snapshot",
+  "forecast_created_at": "2026-09-30 21:30:19.513131+00:00",
+  "role_policy": "receiving_stability_v8",
+  "statuses": {
+    "no_forecast": 5798,
+    "pending": 2826
+  },
+  "graded": 0,
+  "relevant_statuses": {
+    "pending": 2466,
+    "no_forecast": 753
+  },
+  "grades_sha256": "41e36b9f62d8846bb1963b9559d44ee1ca44fadca4005db0d1270aac4e262180"
+}
