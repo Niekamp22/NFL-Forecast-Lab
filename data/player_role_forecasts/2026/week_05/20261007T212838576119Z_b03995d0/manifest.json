@@ -1,0 +1,503 @@
+{
+  "created_at": "2026-10-07 21:28:38.576119+00:00",
+  "earliest_kickoff": "2026-10-09 00:15:00+00:00",
+  "season": 2026,
+  "week": 5,
+  "players": 497,
+  "role_policy": "receiving_stability_v8",
+  "season_weighting": {
+    "defense_rate": 1,
+    "defense_volume": 1,
+    "player_rate": 2,
+    "player_share": 5,
+    "team_volume": 1
+  },
+  "availability_sha256": "1b10ae65cb807fd979af4a617bc1a4fcdcad8986e5f86363ccf9e2343c737a26",
+  "availability_review": {
+    "season": 2026,
+    "week": 5,
+    "reviewed_at": "2026-10-07 21:27:41.125712+00:00",
+    "scope": "Selected official Week 5 reports observed October 7. Thursday final statuses reviewed; Sunday statuses remain conditional. Not league-wide injury clearance. Live pages use observation time. Historical partial-game exclusions retained only for current active roster. No invented injury percentage or team-score penalty.",
+    "players": [
+      {
+        "team": "MIN",
+        "player_id": "00-0035228",
+        "player_name": "Kyler Murray",
+        "action": "note",
+        "published_at": "2026-09-21T13:34:00-04:00",
+        "source_url": "https://www.vikings.com/news/kyler-murray-starting-quarterback-week-3-buccaneers-injury",
+        "note": "Historical partial appearance only: 2026_01_GB_MIN. Week 5 participation remains conditional; previous-week status is not carried forward.",
+        "shortened_games": [
+          "2026_01_GB_MIN"
+        ]
+      },
+      {
+        "team": "BUF",
+        "player_id": "00-0034827",
+        "player_name": "DJ Moore",
+        "action": "note",
+        "note": "Historical partial appearance only: 2026_02_DET_BUF. Week 5 participation remains conditional; previous-week status is not carried forward.",
+        "source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore",
+        "published_at": "2026-09-30T16:58:00-04:00",
+        "shortened_games": [
+          "2026_02_DET_BUF"
+        ],
+        "source_date_basis": "published",
+        "observed_at": "2026-09-30 21:30:18.698036+00:00",
+        "historical_source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore"
+      },
+      {
+        "team": "CHI",
+        "player_id": "00-0039918",
+        "player_name": "Caleb Williams",
+        "action": "unavailable",
+        "note": "NFL reports Williams remains out with a hamstring injury for Sunday at Green Bay.",
+        "source_url": "https://amp.nfl.com/news/bears-qb-situation-has-gone-from-wasteland-to-no-worries-under-ben-johnson",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page",
+        "shortened_games": [
+          "2026_02_MIN_CHI"
+        ],
+        "historical_source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury"
+      },
+      {
+        "team": "SEA",
+        "player_id": "00-0034869",
+        "player_name": "Sam Darnold",
+        "action": "note",
+        "published_at": "2026-09-21T16:20:00-04:00",
+        "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+        "note": "Historical partial appearance only: 2026_01_NE_SEA. Week 5 participation remains conditional; previous-week status is not carried forward.",
+        "shortened_games": [
+          "2026_01_NE_SEA"
+        ]
+      },
+      {
+        "team": "TB",
+        "player_id": "00-0034855",
+        "player_name": "Baker Mayfield",
+        "action": "unavailable",
+        "note": "Ruled out Thursday (right thumb).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TB",
+        "player_id": "00-0041251",
+        "player_name": "Jalon Daniels",
+        "action": "starter",
+        "note": "Team announced Daniels will start Thursday at Dallas.",
+        "source_url": "https://www.buccaneers.com/news/jalon-daniels-will-remain-bucs-starter-baker-mayfield-absence",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TB",
+        "player_id": "00-0037311",
+        "player_name": "Ko Kieft",
+        "action": "note",
+        "note": "Full Wednesday; no final injury designation (elbow).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TB",
+        "player_id": "00-0035358",
+        "player_name": "Chase McLaughlin",
+        "action": "note",
+        "note": "Full Wednesday; no final injury designation (right groin/hip).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "DAL",
+        "player_id": "00-0036358",
+        "player_name": "CeeDee Lamb",
+        "action": "note",
+        "note": "Full Wednesday; no final injury designation (thigh).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "DAL",
+        "player_id": "00-0037120",
+        "player_name": "Tyler Goodson",
+        "action": "note",
+        "note": "Full Wednesday; no final injury designation (ankle).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "DAL",
+        "player_id": "00-0039062",
+        "player_name": "Jonathan Mingo",
+        "action": "uncertain",
+        "note": "Officially questionable Thursday (illness).",
+        "source_url": "https://www.buccaneers.com/team/injury-report/week/reg-5",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TB",
+        "player_id": "00-0038951",
+        "player_name": "Sean Tucker",
+        "action": "note",
+        "note": "Coach discussed additional backfield work; no fixed split announced. No numeric role override.",
+        "source_url": "https://www.buccaneers.com/news/todd-bowles-bucs-need-to-split-backfield-reps-three-ways",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CHI",
+        "player_id": "00-0038416",
+        "player_name": "Tyson Bagent",
+        "action": "starter",
+        "note": "NFL reports Bagent will start Sunday at Green Bay.",
+        "source_url": "https://amp.nfl.com/news/bears-qb-situation-has-gone-from-wasteland-to-no-worries-under-ben-johnson",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CHI",
+        "player_id": "00-0040236",
+        "player_name": "Kyle Monangai",
+        "action": "uncertain",
+        "note": "Thumb/toe: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.chicagobears.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CHI",
+        "player_id": "00-0036275",
+        "player_name": "D'Andre Swift",
+        "action": "uncertain",
+        "note": "Hip/knee: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.chicagobears.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "GB",
+        "player_id": "00-0038685",
+        "player_name": "Chris Brooks",
+        "action": "uncertain",
+        "note": "Ankle: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.chicagobears.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYG",
+        "player_id": "00-0036893",
+        "player_name": "Najee Harris",
+        "action": "uncertain",
+        "note": "Personal reasons: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.giants.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYG",
+        "player_id": "00-0039337",
+        "player_name": "Malik Nabers",
+        "action": "uncertain",
+        "note": "Knee: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.giants.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYG",
+        "player_id": "00-0037838",
+        "player_name": "Isaiah Likely",
+        "action": "uncertain",
+        "note": "Knee/groin: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.giants.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYG",
+        "player_id": "00-0031484",
+        "player_name": "Chris Manhertz",
+        "action": "uncertain",
+        "note": "Shoulder: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.giants.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYG",
+        "player_id": "00-0040715",
+        "player_name": "Cam Skattebo",
+        "action": "uncertain",
+        "note": "Shoulder: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.giants.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "WAS",
+        "player_id": "00-0039910",
+        "player_name": "Jayden Daniels",
+        "action": "note",
+        "note": "Full Wednesday after elbow injury; return is not yet a confirmed starter announcement.",
+        "source_url": "https://www.giants.com/news/week-5-washington-commanders-john-harbaugh-arvell-reese-deonte-banks-malik-nabers-jayden-daniels",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYJ",
+        "player_id": "00-0038120",
+        "player_name": "Breece Hall",
+        "action": "uncertain",
+        "note": "Quad: did not practice Wednesday. No final game clearance inferred.",
+        "source_url": "https://www.newyorkjets.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYJ",
+        "player_id": "00-0039890",
+        "player_name": "Adonai Mitchell",
+        "action": "uncertain",
+        "note": "Finger: did not practice Wednesday. No final game clearance inferred.",
+        "source_url": "https://www.newyorkjets.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "NYJ",
+        "player_id": "00-0040736",
+        "player_name": "Mason Taylor",
+        "action": "note",
+        "note": "Thumb: full Wednesday. No final game clearance inferred.",
+        "source_url": "https://www.newyorkjets.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CLE",
+        "player_id": "00-0036630",
+        "player_name": "Tylan Wallace",
+        "action": "uncertain",
+        "note": "Knee: did not practice Wednesday. No final game clearance inferred.",
+        "source_url": "https://www.newyorkjets.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "PIT",
+        "player_id": "00-0036139",
+        "player_name": "Rico Dowdle",
+        "action": "uncertain",
+        "note": "Toe: limited Wednesday. Prior Week 4 Out designation does not apply to Week 5.",
+        "source_url": "https://www.steelers.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "PIT",
+        "player_id": "00-0036252",
+        "player_name": "Michael Pittman",
+        "action": "uncertain",
+        "note": "Foot: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.steelers.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "MIA",
+        "player_id": "00-0041523",
+        "player_name": "Caleb Douglas",
+        "action": "uncertain",
+        "note": "Ankle: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.miamidolphins.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "MIA",
+        "player_id": "00-0041525",
+        "player_name": "Chris Bell",
+        "action": "uncertain",
+        "note": "Knee: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.miamidolphins.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CIN",
+        "player_id": "00-0036900",
+        "player_name": "Ja'Marr Chase",
+        "action": "uncertain",
+        "note": "Concussion: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.miamidolphins.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CIN",
+        "player_id": "00-0036410",
+        "player_name": "Tee Higgins",
+        "action": "uncertain",
+        "note": "Groin/neck: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.miamidolphins.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "CIN",
+        "player_id": "00-0041069",
+        "player_name": "Colbie Young",
+        "action": "uncertain",
+        "note": "Knee: limited Wednesday. No final game designation yet.",
+        "source_url": "https://www.miamidolphins.com/team/injury-report/",
+        "published_at": "2026-10-07 21:24:22.018385+00:00",
+        "observed_at": "2026-10-07 21:24:22.018385+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TEN",
+        "player_id": "00-0035261",
+        "player_name": "Tony Pollard",
+        "action": "uncertain",
+        "note": "Foot: did not practice Wednesday. No final game designation yet.",
+        "source_url": "https://www.houstontexans.com/team/injury-report/",
+        "published_at": "2026-10-07 21:27:41.125712+00:00",
+        "observed_at": "2026-10-07 21:27:41.125712+00:00",
+        "source_date_basis": "observed_page"
+      },
+      {
+        "team": "TEN",
+        "player_id": "00-0039648",
+        "player_name": "David Martin-Robinson",
+        "action": "note",
+        "note": "Hamstring: full Wednesday; game-day eligibility remains conditional.",
+        "source_url": "https://www.houstontexans.com/team/injury-report/",
+        "published_at": "2026-10-07 21:27:41.125712+00:00",
+        "observed_at": "2026-10-07 21:27:41.125712+00:00",
+        "source_date_basis": "observed_page"
+      }
+    ]
+  },
+  "availability_pinned": true,
+  "replacement_policy": {
+    "version": "te_replacement_v1",
+    "strengths": {
+      "targets": {
+        "TE": 0.5
+      }
+    },
+    "selection_years": [
+      2022,
+      2023
+    ],
+    "evaluation_year": 2024,
+    "evaluation": {
+      "position": "TE",
+      "stat": "targets",
+      "selected_strength": 0.5,
+      "train_mae": 1.4450826354243085,
+      "test_games": 50,
+      "test_graded": 93,
+      "test_changed": 36,
+      "baseline_mae": 1.831995352322752,
+      "candidate_mae": 1.7234339472158744,
+      "baseline_yards_mae": 17.63751100808967,
+      "candidate_yards_mae": 16.790504721656433,
+      "improvement_ci_low": 0.0111032284554998,
+      "improvement_ci_high": 0.2287586822441946,
+      "promotion_gate": true
+    },
+    "selection_sha256": "9d262a1ccdee54bd2ec6dd4ac9235f7dc3c988cf3c5f847803aa7a1c346fa39c",
+    "limits": "Retrospective roster proxy and timestamped injury records; only 36 changed graded TE appearances. Not prospective validation. Confirmed unavailable TE workload only; no RB/WR boost, route data or depth-rank multiplier."
+  },
+  "refinement_policy": {
+    "policy_id": "wr_receiving_stability_v1",
+    "rate_strengths": {
+      "WR": {
+        "receiving_yards": 20
+      }
+    },
+    "workload_blend": 0,
+    "selection": "Prior strength selected on 2022-2023 early-season games; WR-only scope retained after reused 2024-2025 early and later checks.",
+    "later_validation": {
+      "seasons": [
+        2024,
+        2025
+      ],
+      "weeks": [
+        7,
+        18
+      ],
+      "observations": 1785,
+      "baseline_mae": 26.21162363397448,
+      "candidate_mae": 26.030158049897366,
+      "paired_week_interval": [
+        -0.3422506030084053,
+        -0.018877089204622
+      ]
+    },
+    "limits": "Small historical gain, not prospective validation or a betting edge. Historical roster proxies and missing actual rows limit coverage. No TE, RB, TD or workload changes. QB passing yards reconcile to receiving totals."
+  },
+  "refinement_code_sha256": {
+    "operational_refinement.py": "96294d250ee263c0df47313f9f4f79678b0a3280d9ec41fa6fc755b9baea8047",
+    "player_refinement.py": "ff2deebedc49fe7afb63fb5027b11baf39fca89db964a045461d148124aa4bf1",
+    "receiving_stability.json": "618ee0c3a60eb39b7a193fe143fa6b9b394cf72cf47bd18b520f16ae80081ad6"
+  },
+  "source_forecast": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_opportunity_forecasts\\2026\\week_05\\20261007T212431465041Z_be2c9f03",
+  "method": "Five-game team budget; current-season-weighted observed-game current-stint workload shares; depth/usage QB agreement or reviewed team announcement; verified partial games excluded from workload shares; ten-game player efficiency",
+  "selection_reason": "Default operational view for coherent team/player totals, not a demonstrated accuracy winner. Defense experiments remain research options.",
+  "uncertainty": "No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.",
+  "input_hashes": {
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\processed\\20261007T212138242828Z_62e67e76\\player_week.parquet": "10846dd173dc67d5474476083f3df4cd7bee882618f64d9bcacdc4a72daa65ae",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\schedules\\all\\20261007T212141675167Z_d12e160a\\games.parquet": "9de970bd800cef01e9e8dbbca27030132669ebd62a5d4335c036277694aaabbc",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2021\\20260915T221423070662Z_e3f27b38\\stats_player_week_2021.parquet": "2c6894499e96dcf20b060969c607a0ff4e2018f369efad6e97d88abbe77b7277",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2022\\20260915T221424041343Z_c7378795\\stats_player_week_2022.parquet": "64c1684938b029d68e33d7852cbee918266c8ac7f30b4c097c0a8912b4384e52",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2023\\20260915T221424222529Z_4a76348d\\stats_player_week_2023.parquet": "ac776fbd7c9fefdb4069b72304f4c5fa05ae417acd49f6e4e27be14b9d7a4bbc",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2024\\20260915T221424383612Z_d7e67b17\\stats_player_week_2024.parquet": "847569d194ca3d96b5efcf91e6eac5e18780fc47568a713fd545a82d29d155c1",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2025\\20260915T221424546722Z_6dc62c97\\stats_player_week_2025.parquet": "2a461becaa9adb3c93a3074a3a31f1e960162a50163371a2d34e28393b5fff10",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\raw\\player_stats\\2026\\20261007T212140448982Z_9b1a5898\\stats_player_week_2026.parquet": "11eaab631cd6e710a63619637fc0316fb8479912f9095617fd485c6ceea5cdf7",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\processed\\20261007T212138242828Z_62e67e76\\player_week_depth.parquet": "e6eea79507541bd9f270a1672d80d4f0d0d485a4ac2af3c5bdb59ae145b96aca",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_05\\20261007T212838576119Z_b03995d0\\availability.json": "1b10ae65cb807fd979af4a617bc1a4fcdcad8986e5f86363ccf9e2343c737a26",
+    "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_opportunity_forecasts\\2026\\week_05\\20261007T212431465041Z_be2c9f03\\predictions.parquet": "ad5f827db50cdb2e0030e5903a4b0fe3b03b5e70cd29060d478ffb7f20651328"
+  },
+  "predictions_sha256": "2d320496e0854ff667327cb943492676b09b3d47fba8e41e7528d4c1042a3696",
+  "code_sha256": "8a6203052deba2f55934ff8a418690cbe0313bfd59cde5f78e2ff95f7969ee58"
+}

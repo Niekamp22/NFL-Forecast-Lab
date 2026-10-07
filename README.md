@@ -1,6 +1,6 @@
 # NFL Forecast Lab
 
-Read-only review app: 2026, Week 4. Matchups, player projections, selectable history charts, and experimental milestone probabilities.
+Read-only review app: 2026, Week 5. Matchups, player projections, selectable history charts, and experimental milestone probabilities.
 
 ## Deploy
 
