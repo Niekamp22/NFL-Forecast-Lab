@@ -1,12 +1,12 @@
 """Resolve original immutable artifact references in a portable review bundle."""
 import json
 import os
-from functools import lru_cache
 from pathlib import Path
 
 
-@lru_cache(maxsize=4)
 def _mapping(filename):
+    # Deployments replace this file in place while Streamlit can retain imports.
+    # A filename-only cache keeps the previous release's allowlist indefinitely.
     return json.loads(Path(filename).read_text(encoding='utf-8'))
 
 

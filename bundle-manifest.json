@@ -15,7 +15,7 @@
     "app/streamlit_app.py": "4f75a2593d3d62daa6022c0b0daccaa63761c2fc2b700de8200b3067a6bfc842",
     "app/weather_panel.py": "df7cc0b42274646cfe959020409f7cd77f9157a72177d9a1f569717f96d701e8",
     "src/nfl_model/accuracy.py": "df127fd505762121b3e8d66a2b76eaecf1ed09721debc293ca68718b8cc5d6ea",
-    "src/nfl_model/artifact_paths.py": "3e264e384a12625f9f04696f1c09ea337cb1b659849777d5d31ad96cee573f74",
+    "src/nfl_model/artifact_paths.py": "e0aac0584c336a7ac204db7ad11bce5e801a6ba12c6cd9fbf2900ea06a289b48",
     "src/nfl_model/availability.py": "c9e9c65648d265d0a8dbf8f0688ef55c266fbbb5618bde45e65460b4416452c1",
     "src/nfl_model/cli.py": "4201a2f187e055b15fc3c7ca8b8b0caf527a8ea18273d1e69ddd6033271a85a3",
     "src/nfl_model/consumer_views.py": "52237adaa117384f08f31c65817579e58c559dfa395afc3d73505eed9c899f1a",
