@@ -1,0 +1,160 @@
+{
+  "season": 2026,
+  "week": 6,
+  "reviewed_at": "2026-10-15 15:47:36.389728+00:00",
+  "scope": "Selected official Week 6 reports observed October 15. Thursday final statuses reviewed; Sunday availability remains conditional. Not league-wide injury clearance. Historical partial-game exclusions retained only for current active roster. No invented injury percentage or team-score penalty.",
+  "players": [
+    {
+      "team": "BUF",
+      "player_id": "00-0034827",
+      "player_name": "DJ Moore",
+      "action": "note",
+      "note": "Historical partial appearance only: 2026_02_DET_BUF. Week 6 participation remains conditional; previous-week status is not carried forward.",
+      "source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore",
+      "published_at": "2026-09-30T16:58:00-04:00",
+      "shortened_games": [
+        "2026_02_DET_BUF"
+      ],
+      "source_date_basis": "published",
+      "observed_at": "2026-09-30 21:30:18.698036+00:00",
+      "historical_source_url": "https://www.buffalobills.com/news/bills-issue-injury-update-on-wr-dj-moore"
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0039918",
+      "player_name": "Caleb Williams",
+      "action": "uncertain",
+      "note": "Team says Sunday starting quarterback remains undecided. Williams was estimated full Wednesday; no starter override.",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-takes-another-step-toward-return-from-hamstring-injury",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page",
+      "shortened_games": [
+        "2026_02_MIN_CHI"
+      ],
+      "historical_source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury"
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0034869",
+      "player_name": "Sam Darnold",
+      "action": "note",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Historical partial appearance only: 2026_01_NE_SEA. Week 6 participation remains conditional; previous-week status is not carried forward.",
+      "shortened_games": [
+        "2026_01_NE_SEA"
+      ]
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0039165",
+      "player_name": "Zach Charbonnet",
+      "action": "unavailable",
+      "note": "Ruled out Thursday (knee); remains on PUP.",
+      "source_url": "https://www.seahawks.com/news/week-6-injury-report-seahawks-at-broncos",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0038543",
+      "player_name": "Jaxon Smith-Njigba",
+      "action": "note",
+      "note": "Full Wednesday; no final injury designation.",
+      "source_url": "https://www.seahawks.com/news/week-6-injury-report-seahawks-at-broncos",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0038416",
+      "player_name": "Tyson Bagent",
+      "action": "uncertain",
+      "note": "Team says Sunday starting quarterback remains undecided. Williams was estimated full Wednesday; no starter override.",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-takes-another-step-toward-return-from-hamstring-injury",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0028986",
+      "player_name": "Case Keenum",
+      "action": "uncertain",
+      "note": "Team says Sunday starting quarterback remains undecided. Williams was estimated full Wednesday; no starter override.",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-takes-another-step-toward-return-from-hamstring-injury",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "TB",
+      "player_id": "00-0034855",
+      "player_name": "Baker Mayfield",
+      "action": "uncertain",
+      "note": "Right thumb: did not practice Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "TB",
+      "player_id": "00-0038951",
+      "player_name": "Sean Tucker",
+      "action": "uncertain",
+      "note": "Quad: did not practice Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PIT",
+      "player_id": "00-0036139",
+      "player_name": "Rico Dowdle",
+      "action": "uncertain",
+      "note": "Toe: limited Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PIT",
+      "player_id": "00-0039739",
+      "player_name": "Roman Wilson",
+      "action": "uncertain",
+      "note": "Finger: did not practice Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PIT",
+      "player_id": "00-0036862",
+      "player_name": "Ben Skowronek",
+      "action": "uncertain",
+      "note": "Calf: did not practice Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "TB",
+      "player_id": "00-0033921",
+      "player_name": "Chris Godwin Jr.",
+      "action": "note",
+      "note": "Rest: did not practice Wednesday. No final game designation yet.",
+      "source_url": "https://www.buccaneers.com/team/injury-report/",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page"
+    }
+  ]
+}
