@@ -17,6 +17,7 @@ from nfl_model.consumer_views import matching_player_results, game_status, date_
 from nfl_model.dashboard import available_weeks,load_forecast
 from nfl_model.models.player_roles import checked_player_snapshot
 from nfl_model.player_views import POSITION_STATS,PRIMARY,CARD_GROUPS,SHORT_LABELS,chronological_games,matchup_players,load_pinned_history,with_total_yards,blank_explanations
+from nfl_model.projection_accounting import team_accounting
 
 st.set_page_config(page_title='NFL Forecast Lab',page_icon='🏈',layout='wide')
 st.markdown('''<style>.block-container{padding-top:4rem;max-width:1360px}
@@ -36,6 +37,27 @@ def go(game=None,player=None):
 
 
 def fmt(value):return '—' if pd.isna(value) else f'{value:.1f}'
+
+
+def render_team_accounting(game_id,teams):
+    with st.expander('How player totals connect to the team',expanded=True):
+        for column,team in zip(st.columns(len(teams)),teams):
+            with column:
+                score=game.projected_home_score if team==game.home_team else game.projected_away_score
+                summary=team_accounting(players,game_id,team,score)
+                st.markdown('**'+team+' · Passing and receiving**')
+                st.dataframe(summary['receiving'],hide_index=True,width='stretch',column_config={'Receiving yards':st.column_config.NumberColumn(format='%.1f')})
+                st.caption(f"Team passing yards {summary['passing_yards']:.1f} = team receiving yards {summary['receiving_yards']:.1f}. Totals include all positions and unassigned production; rounding can affect displayed sums.")
+                if summary['unassigned_passing_yards']>0:
+                    st.info(f"{summary['unassigned_passing_yards']:.1f} passing yards have no assigned quarterback. Starter evidence is unresolved.")
+                if summary['unassigned_receiving_yards']>0:
+                    st.info(f"{summary['unassigned_receiving_yards']:.1f} receiving yards remain unassigned because player roles or production rates lack support.")
+                st.markdown('**Scoring comparison**')
+                st.caption(f"TD points {summary['touchdown_points']:.1f} + field goals {summary['field_goal_points']:.1f} + extra points {summary['extra_point_points']:.1f} = {summary['player_points']:.1f} player-implied points. Includes unassigned production; passing TDs are counted through receiving TDs once.")
+                if summary['joint_scoring']:
+                    st.caption(f"Other expected scoring {summary['other_points']:.1f} + player-implied points {summary['player_points']:.1f} = team score {summary['team_score']:.1f}. Other scoring uses earlier league results for two-point conversions and defensive/return scoring; it is not a specific defensive-TD prediction.")
+                else:
+                    st.caption(f"Saved team score: {summary['team_score']:.1f}. Difference: {summary['score_difference']:+.1f} points. These saved models were fitted separately. The difference is model disagreement; it is not a defensive scoring forecast. Two-point conversions and defensive/return scores are not included in the player sum.")
 
 
 @st.cache_data(show_spinner=False)
@@ -76,7 +98,7 @@ else:
     st.sidebar.info('Preview for feedback · Saved forecasts, not a live feed. Player projections and milestone probabilities are experimental.')
 st.sidebar.caption('Saved estimates · Reload reads saved files; it does not fetch new stats or injuries.')
 if use_defense_roles:
-    st.sidebar.caption('Defense-adjusted player workloads and yardage. Team scores and kickers unchanged. Historical comparison is at team level; player roles remain unvalidated.')
+    st.sidebar.caption('Defense-adjusted player workloads and yardage. '+('TD and conversion estimates retain the shared team scoring budget.' if meta and meta.get('joint_scoring_policy') else 'Team scores and kickers unchanged.')+' Historical defense comparison is at team level; player roles remain provisional.')
     if meta is not None:
         with st.sidebar.expander('Defense model comparison'):
             st.dataframe(pd.read_csv(folder/'evaluation.csv'),hide_index=True)
@@ -181,6 +203,7 @@ if not player_id:
     a.metric(f'{game.away_team} projected score',fmt(game.projected_away_score))
     b.metric(f'{game.home_team} projected score',fmt(game.projected_home_score))
     c.metric('Projected total',fmt(game.score_total))
+    render_team_accounting(game_id,[game.away_team,game.home_team])
     if game_id in final_scores:
         home,away=final_scores[game_id]
         st.success(f'Verified final: {game.away_team} {away:.0f} · {game.home_team} {home:.0f}')
@@ -222,7 +245,7 @@ if not player_id:
         st.dataframe(reserve[['team','attempts','targets','carries']],hide_index=True,width='stretch')
         st.write(f'{game.away_team}: {game.away_qb_review}')
         st.write(f'{game.home_team}: {game.home_qb_review}')
-        st.caption('Reserved shares are not assigned to a guessed starter. Team scores and player stat totals are separate models. These team scores have not been revised for the reviewed injury or starter announcements.')
+        st.caption('Reserved shares are not assigned to a guessed starter. '+('TDs and kicks reconcile to the saved team scoring budget.' if meta.get('joint_scoring_policy') else 'These saved team scores and player scoring totals were fitted separately.')+' Team scores have not been revised for the reviewed injury or starter announcements.')
     st.download_button('Download matchup projections',roster.to_csv(index=False),f'{game_id}_players.csv','text/csv')
     st.stop()
 
@@ -251,6 +274,8 @@ if reasons:
     with st.expander('Why are some stats blank?',expanded=True):
         for reason,fields in reasons.items():st.write(f"{', '.join(fields)}: {reason}")
 selected_stat=st.selectbox('Explore a stat',stats,key=stat_key,format_func=lambda s:s.replace('_',' ').title())
+if selected_stat in ['passing_yards','receiving_yards']:
+    render_team_accounting(game_id,[player.team])
 st.subheader(selected_stat.replace('_',' ').title()+' · History & milestones')
 try:
     history=historical_data(json.dumps(meta,sort_keys=True))
@@ -281,7 +306,9 @@ with st.expander('Role & availability'):
 results_panel(results,game_id,player_id,predictions=players)
 with st.expander('How this projection was calculated'):
     team_budget=budgets[budgets.team.eq(player.team)].iloc[0]
-    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5','te_replacement_v6','current_season_emphasis_v7','receiving_stability_v8'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    st.write('Team workloads use five recent team games. Player target and carry shares use up to five actual appearances in their current team stint, weighted toward newer games. One appearance gets full weight; unplayed games are not zeros. Shares are scaled to stay within the team budget; unresolved shares remain unallocated.' if meta.get('role_policy') in ['observed_current_stint_v2','current_season_v3','current_season_qb_v4','reviewed_availability_v5','te_replacement_v6','current_season_emphasis_v7','receiving_stability_v8','joint_scoring_v9'] else 'Team workloads use five recent team games, weighted toward newer games. Target and carry shares reflect observed usage on the current team; unresolved shares remain unallocated.')
+    if meta.get('joint_scoring_policy'):
+        st.write('Touchdowns and extra points share the frozen team points budget after field goals and a prior-data allowance for other scoring. Receiver and rushing TD rates determine the split, bounded by catches and carries. Passing TDs mirror receiving TDs and are counted once. This improves accounting; it does not guarantee a more accurate team score.')
     if meta.get('replacement_policy'):
         st.write('Tight-end replacement targets: transfer 50% of the supported unavailable-TE target share to eligible TEs in proportion to prior usage, capped by the remaining team reserve. Players with uncertain availability receive no bonus. RB and WR replacement boosts are disabled.')
         st.caption('Selected on 2022–2023; later-year 2024 check: target MAE 1.83 → 1.72 and yardage MAE 17.64 → 16.79 across 93 graded TE appearances, 36 changed. Historical roster proxies limit confidence; this is not prospective validation.')
@@ -296,7 +323,7 @@ with st.expander('How this projection was calculated'):
         st.caption(player.defense_status)
         compare=pd.DataFrame([{'Stat':s.replace('_',' ').title(),'Role baseline':player.get('baseline_'+s),'Defense adjusted':player[s]} for s in stats if s!='total_yards'])
         st.dataframe(compare,hide_index=True,width='stretch')
-        st.caption('Shares remain fixed. TDs, completions and interceptions scale with workload only; no direct rate adjustment for those stats. Kicker estimates are unchanged.')
+        st.caption('Shares remain fixed for workload and yardage. '+('After defense adjustment, TDs and PATs are reconciled to the same team points budget, bounded by opportunities.' if meta.get('joint_scoring_policy') else 'TDs, completions and interceptions scale with workload only; no direct rate adjustment for those stats. Kicker estimates are unchanged.'))
     for workload,production in [('targets','receiving_yards'),('carries','rushing_yards')]:
         if workload in stats and pd.notna(player[workload]) and player[workload]>0 and pd.notna(player[production]):
             rate=player[production]/player[workload]
@@ -304,8 +331,8 @@ with st.expander('How this projection was calculated'):
             st.write(f'{player[workload]:.1f} {workload} ({share:.1%} of team budget) × {rate:.2f} yards per opportunity = {player[production]:.1f} {production.replace("_"," ")}.')
     if meta.get('availability_review'):
         st.write('Reviewed team announcements can establish the starting quarterback. Verified injury-shortened appearances are excluded from workload shares only. Confirmed unavailable players receive no estimate. Most unassigned workload stays reserved; an eligible tight end can receive a limited share of a confirmed tight-end vacancy. Injury uncertainty is shown without a guessed numerical penalty.')
-    if player.position=='QB' and meta.get('role_policy') not in ['reviewed_availability_v5','te_replacement_v6','current_season_emphasis_v7','receiving_stability_v8']:st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
-    if player.position=='K':st.write('Field-goal and extra-point attempts are allocated within recent team budgets; projected makes use historical conversion rates. Unknown shares stay reserved.')
+    if player.position=='QB' and meta.get('role_policy') not in ['reviewed_availability_v5','te_replacement_v6','current_season_emphasis_v7','receiving_stability_v8','joint_scoring_v9']:st.write('Passing workload is assigned when the saved depth-chart QB1 matches the latest game’s majority passer, with at least 10 attempts. This is an unconfirmed role estimate, not live injury clearance. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.' if meta.get('role_policy')=='current_season_qb_v4' else 'Passing workload is assigned only when depth rank and recent attempt leaders agree. Passing yards, completions, and TDs equal the combined receiving allocations, including reserved production. An unresolved QB receives no passing estimate.')
+    if player.position=='K':st.write('Field goals use recent team budgets and historical conversion rates. Extra points are reconciled to the team touchdown and points budget. Unknown kicker shares stay reserved.' if meta.get('joint_scoring_policy') else 'Field-goal and extra-point attempts are allocated within recent team budgets; projected makes use historical conversion rates. Unknown shares stay reserved.')
     st.caption('Efficiencies use up to 10 prior games. Displayed multiplication may differ slightly due to rounding. No calibrated uncertainty intervals are available.'+(' Opponent multipliers are included in this selected version.' if use_defense_roles else ' This baseline has no opponent adjustment.'))
 with st.expander('Matchup context & source timing'):
     st.write(f'{game.away_team}: {game.away_qb_review}')

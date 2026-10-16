@@ -16,7 +16,7 @@ FIELDS = ['attempts','completions','passing_yards','passing_tds','passing_interc
           'targets','receptions','receiving_yards','receiving_tds','carries','rushing_yards','rushing_tds','fg_att','fg_made','pat_att','pat_made']
 
 
-ROLE_POLICY = 'receiving_stability_v8'
+ROLE_POLICY = 'joint_scoring_v9'
 
 
 def checked_player_snapshot(root, current=False):
@@ -25,7 +25,7 @@ def checked_player_snapshot(root, current=False):
         candidates=[]
         for path in Path(root).glob('*/manifest.json'):
             item=json.loads(path.read_text())
-            if item.get('role_policy') in [ROLE_POLICY, 'current_season_emphasis_v7', 'te_replacement_v6', 'reviewed_availability_v5', 'current_season_qb_v4'] and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
+            if item.get('role_policy') in [ROLE_POLICY, 'receiving_stability_v8', 'current_season_emphasis_v7', 'te_replacement_v6', 'reviewed_availability_v5', 'current_season_qb_v4'] and pd.Timestamp(item['created_at'])<pd.Timestamp(item['earliest_kickoff']):
                 candidates.append((item.get('role_policy') != ROLE_POLICY, -pd.Timestamp(item['created_at']).value,str(path.parent),item))
         if candidates:
             _,_,selected,meta=min(candidates,key=lambda x:x[:3]);folder=Path(selected)
@@ -221,6 +221,8 @@ def allocate_role_rows(history,roster,depth,current,long,season,week,availabilit
 
 def freeze_role_forecast(root, season, week):
     from .operational_refinement import refinement_policy,apply_current_refinement
+    from .joint_scoring import scoring_policy,league_other_points,reconcile_scoring
+    from ..dashboard import load_forecast
     root=Path(root)
     now=pd.Timestamp.now(tz='UTC')
     availability_path,availability=load_availability(root,season,week,now)
@@ -231,7 +233,8 @@ def freeze_role_forecast(root, season, week):
         if (saved_meta.get('role_policy')==ROLE_POLICY and saved_meta.get('availability_sha256')==availability_hash
             and saved_meta.get('availability_pinned',False) and saved_meta.get('replacement_policy')==replacement_policy()
             and saved_meta.get('season_weighting')==season_policy()
-            and saved_meta.get('refinement_policy')==refinement_policy()):return saved
+            and saved_meta.get('refinement_policy')==refinement_policy()
+            and saved_meta.get('joint_scoring_policy')==scoring_policy()):return saved
     original,meta,long=checked_player_snapshot(root/'player_opportunity_forecasts'/str(season)/f'week_{week:02d}')
     now=pd.Timestamp.now(tz='UTC')
     if now>=pd.Timestamp(meta['earliest_kickoff']): raise ValueError('Cannot freeze after kickoff')
@@ -261,6 +264,15 @@ def freeze_role_forecast(root, season, week):
     policy=replacement_policy()
     players,teams=allocate_role_rows(history,roster,depth,current,long,season,week,availability,policy['strengths'])
     players,teams,refinement=apply_current_refinement(players,teams,history,cutoff)
+    team_folder,team_meta,team_forecast=load_forecast(root,season,week)
+    if pd.Timestamp(team_meta['created_at'])>now:raise ValueError('Team score forecast is after player cutoff')
+    other=league_other_points(history,schedule.set_index('game_id').home_team)
+    score_targets=[]
+    for game in team_forecast.itertuples():
+        for venue in ['home','away']:
+            score_targets.append(dict(game_id=game.game_id,team=getattr(game,venue+'_team'),score=getattr(game,'projected_'+venue+'_score'),other_points=other))
+    players,teams,_=reconcile_scoring(players,teams,pd.DataFrame(score_targets))
+    sources.extend([team_folder/'predictions.parquet',team_folder/'manifest.json'])
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
     if availability_path:
         pinned=folder/'availability.json'
@@ -271,9 +283,10 @@ def freeze_role_forecast(root, season, week):
     info=dict(created_at=str(now),earliest_kickoff=meta['earliest_kickoff'],season=season,week=week,players=int((~players.is_unallocated).sum()),role_policy=ROLE_POLICY,season_weighting=season_policy(),
               availability_sha256=availability_hash,availability_review=availability,availability_pinned=True,
               replacement_policy=policy,refinement_policy=refinement,
-              refinement_code_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in ['operational_refinement.py','player_refinement.py','receiving_stability.json']},
+              joint_scoring_policy=scoring_policy(),shared_team_forecast=str(team_folder.resolve()),
+              refinement_code_sha256={name:hashlib.sha256(Path(__file__).with_name(name).read_bytes()).hexdigest() for name in ['operational_refinement.py','player_refinement.py','receiving_stability.json','joint_scoring.py']},
               source_forecast=str(original.resolve()),method='Five-game team budget; current-season-weighted observed-game current-stint workload shares; depth/usage QB agreement or reviewed team announcement; verified partial games excluded from workload shares; ten-game player efficiency',
-              selection_reason='Default operational view for coherent team/player totals, not a demonstrated accuracy winner. Defense experiments remain research options.',
+              selection_reason='Conserved passing/receiving totals plus a shared TD/PAT team points budget. Historical TD/PAT gains are limited and reused; no new team-score accuracy claim. Defense experiments remain research options.',
               uncertainty='No calibrated intervals or active probabilities. Snap share is a prior-usage proxy, not a participation forecast. Named-player gaps stay missing; team reserve is explicit.',
               input_hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[original/'predictions.parquet']},
               predictions_sha256=hashlib.sha256((folder/'predictions.parquet').read_bytes()).hexdigest(),code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())

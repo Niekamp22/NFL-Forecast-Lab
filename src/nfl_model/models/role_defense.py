@@ -96,6 +96,10 @@ def freeze_defense_roles(root,season,week):
     factors=pd.DataFrame(factors)
     budgets_path=original/'team_budgets.parquet'
     adjusted,budgets=adjust_allocations(players,pd.read_parquet(budgets_path),factors)
+    if meta.get('joint_scoring_policy'):
+        from .joint_scoring import reconcile_scoring
+        targets=players.groupby(['game_id','team'],as_index=False).agg(score=('scoring_team_points','first'),other_points=('scoring_other_points','first'))
+        adjusted,budgets,_=reconcile_scoring(adjusted,budgets,targets)
     folder=target/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8]);folder.mkdir(parents=True,exist_ok=False)
     adjusted.to_parquet(folder/'predictions.parquet',index=False);budgets.to_parquet(folder/'team_budgets.parquet',index=False)
     factors.to_csv(folder/'defense_factors.csv',index=False);pd.DataFrame(metrics).to_csv(folder/'evaluation.csv',index=False)
@@ -106,5 +110,8 @@ def freeze_defense_roles(root,season,week):
               limits='Passing multiplier learned on targets and also applied to attempts, catches, TDs and interceptions at unchanged per-opportunity rates. Rushing TDs scale with carries. No direct defense TD, interception, catch-rate or kicker adjustment. Team score forecast unchanged.',
               input_hashes={str(p.resolve()):hashlib.sha256(p.read_bytes()).hexdigest() for p in sources+[original/'predictions.parquet',original/'manifest.json',budgets_path]},
               predictions_sha256=hashlib.sha256((folder/'predictions.parquet').read_bytes()).hexdigest(),code_sha256=hashlib.sha256(Path(__file__).read_bytes()).hexdigest())
+    if meta.get('joint_scoring_policy'):
+        info['limits']+=' Shared-score policy then reconciles TDs and PATs back to the frozen team points budget; this may adjust PAT forecasts.'
+        info['joint_scoring_code_sha256']=hashlib.sha256(Path(__file__).with_name('joint_scoring.py').read_bytes()).hexdigest()
     (folder/'manifest.json').write_text(json.dumps(info,indent=2),encoding='utf-8')
     return folder
