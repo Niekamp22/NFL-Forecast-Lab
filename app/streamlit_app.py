@@ -18,6 +18,7 @@ from nfl_model.dashboard import available_weeks,load_forecast
 from nfl_model.models.player_roles import checked_player_snapshot
 from nfl_model.player_views import POSITION_STATS,PRIMARY,CARD_GROUPS,SHORT_LABELS,chronological_games,matchup_players,load_pinned_history,with_total_yards,blank_explanations
 from nfl_model.projection_accounting import team_accounting
+from nfl_model.testing_forecasts import load_testing_snapshot
 
 st.set_page_config(page_title='NFL Forecast Lab',page_icon='🏈',layout='wide')
 st.markdown('''<style>.block-container{padding-top:4rem;max-width:1360px}
@@ -30,6 +31,7 @@ root=Path(os.environ.get('NFL_MODEL_DATA_DIR',str(PROJECT/'data'))).resolve()
 def go(game=None,player=None):
     st.query_params['season']=str(season);st.query_params['week']=str(week)
     st.query_params['model']='defense' if use_defense_roles else 'baseline'
+    st.query_params['version']='testing' if use_testing else 'original'
     for name,value in [('game',game),('player',player)]:
         if value is None:
             if name in st.query_params:del st.query_params[name]
@@ -76,9 +78,6 @@ try:
     model_label=st.sidebar.selectbox('Player forecast',['Recent usage estimate','Defense-adjusted estimate (experimental)'],index=1 if st.query_params.get('model')=='defense' else 0)
     use_defense_roles=model_label.startswith('Defense')
     st.query_params['model']='defense' if use_defense_roles else 'baseline'
-    scope=(season,week)
-    if st.session_state.get('scope',scope)!=scope:go()
-    st.session_state['scope']=scope
     _,team_meta,games=load_forecast(root,season,week)
     games=chronological_games(games)
     role_root=root/('player_role_defense_forecasts' if use_defense_roles else 'player_role_forecasts')/str(season)/f'week_{week:02d}'
@@ -86,6 +85,23 @@ try:
     if list(role_root.glob('*/manifest.json')):
         folder,meta,players=checked_player_snapshot(role_root,current=True)
         budgets=pd.read_parquet(folder/'team_budgets.parquet')
+    original_players=players.copy()
+    use_testing=False
+    testing=load_testing_snapshot(root,season,week,use_defense_roles)
+    if testing:
+        requested_version=st.query_params.get('version')
+        excluded_link=st.query_params.get('game') in testing[1]['excluded_started_games']
+        default_test=requested_version=='testing' or (requested_version!='original' and not excluded_link)
+        version=st.sidebar.selectbox('Forecast version',[f'Week {week} testing · Shared scoring','Original pregame forecasts'],index=0 if default_test else 1)
+        use_testing=version.startswith('Week ')
+        if use_testing:
+            folder,meta,players=testing
+            budgets=pd.read_parquet(folder/'team_budgets.parquet')
+            games=games[games.game_id.isin(meta['game_ids'])].copy()
+    st.query_params['version']='testing' if use_testing else 'original'
+    scope=(season,week)
+    if st.session_state.get('scope',scope)!=scope:go()
+    st.session_state['scope']=scope
 except (OSError,ValueError,KeyError) as exc:st.error(f'Cannot load verified forecasts: {exc}');st.stop()
 
 st.sidebar.button('All matchups',on_click=go,width='stretch')
@@ -97,6 +113,8 @@ if os.environ.get('NFL_REVIEW_BUILD')!='1':
 else:
     st.sidebar.info('Preview for feedback · Saved forecasts, not a live feed. Player projections and milestone probabilities are experimental.')
 st.sidebar.caption('Saved estimates · Reload reads saved files; it does not fetch new stats or injuries.')
+if use_testing:
+    st.sidebar.info(f"Week {week} testing · {len(games)} matchups saved before their kickoffs. Switch to Original pregame forecasts to view games that had already started.")
 if use_defense_roles:
     st.sidebar.caption('Defense-adjusted player workloads and yardage. '+('TD and conversion estimates retain the shared team scoring budget.' if meta and meta.get('joint_scoring_policy') else 'Team scores and kickers unchanged.')+' Historical defense comparison is at team level; player roles remain provisional.')
     if meta is not None:
@@ -115,11 +133,14 @@ if meta is not None:
     except (OSError,ValueError,KeyError,StopIteration):
         input_date='Unavailable'
 def render_freshness():
-    st.caption('Saved forecast · No live injury updates')
+    st.caption(('Week '+str(week)+' testing · Shared scoring · ' if use_testing else 'Saved forecast · ')+'No live injury updates')
+    if use_testing:
+        st.info('Testing version created '+date_label(meta['created_at'])+'. Uses the original saved statistics and availability evidence to isolate the scoring change. Games that had already started are excluded; test results are tracked separately.')
     with st.expander('Forecast dates & data coverage'):
         st.write('Team estimates saved: '+date_label(team_meta.get('created_at')))
         if meta is not None:
             st.write('Player estimates saved: '+date_label(meta.get('created_at')))
+            if meta.get('history_cutoff'):st.write('Testing input cutoff: '+date_label(meta['history_cutoff']))
             st.write('Latest recorded game in player inputs: '+input_date)
             weighting=meta.get('season_weighting')
             if weighting:
@@ -255,6 +276,12 @@ st.title(str(player.player_name))
 render_freshness()
 st.caption(f'{player.team} · {player.position} · vs {player.opponent} · Week {week}')
 st.caption('Estimate method: '+model_label)
+if use_testing:
+    with st.expander('Changes from the original forecast'):
+        original=original_players[original_players.game_id.eq(game_id)&original_players.player_id.eq(player_id)].iloc[0]
+        fields=['passing_tds','receiving_tds','rushing_tds','fg_made','pat_att','pat_made']
+        comparison=pd.DataFrame([{'Stat':s.replace('_',' ').title(),'Original':original[s],'Testing':player[s]} for s in fields if pd.notna(original[s]) or pd.notna(player[s])])
+        st.dataframe(comparison,hide_index=True,width='stretch')
 st.caption(game_status(game.local_kickoff,game_id in final_games))
 render_availability(player)
 st.info('Why this estimate? Recent playing opportunities and production set the starting point. '+('The opponent’s recent defensive results adjust workload and yardage.' if use_defense_roles else 'Opponent strength is not included in this selected estimate.')+' Weather is informational only; injuries are not updated live.')

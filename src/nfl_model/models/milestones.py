@@ -97,10 +97,16 @@ def evaluate_records(records):
     return training,pd.concat(evaluations,ignore_index=True),pd.DataFrame(metrics),pd.DataFrame(reliability)
 
 
-def build_milestones(root,season,week,defense=False):
+def build_milestones(root,season,week,defense=False,testing=False):
     root=Path(root)
     family='defense' if defense else 'baseline'
-    original,meta,players=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=True)
+    if testing:
+        from ..testing_forecasts import load_testing_snapshot
+        loaded=load_testing_snapshot(root,season,week,defense)
+        if loaded is None:raise ValueError('No testing forecast exists')
+        original,meta,players=loaded
+    else:
+        original,meta,players=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=True)
     now=pd.Timestamp.now(tz='UTC')
     if season<=2025:raise ValueError('Prospective milestones require a season after the evaluation years')
     if now>=pd.Timestamp(meta['earliest_kickoff']):raise ValueError('Cannot freeze milestones after kickoff')

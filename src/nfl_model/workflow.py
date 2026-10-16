@@ -32,6 +32,11 @@ def run_player_week(client,season,week,refresh=False):
         defense_forecast=checked_player_snapshot(defense,current=True)[0]
         defense_grading=grade_role_week(client,season,week,False,defense=True,current=True)
         result['defense']={'forecast':str(defense_forecast),'grading':str(defense_grading)}
+    from .testing_forecasts import load_testing_snapshot
+    for is_defense,key in [(False,'testing'),(True,'testing_defense')]:
+        test=load_testing_snapshot(root,season,week,is_defense)
+        if test:
+            result[key]={'forecast':str(test[0]),'grading':str(grade_role_week(client,season,week,False,defense=is_defense,testing=True))}
     return result
 
 

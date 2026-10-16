@@ -32,9 +32,15 @@ def grade_player_rows(predictions,schedule,pbp,stats):
     return out
 
 
-def grade_role_week(client,season,week,refresh=False,defense=False,current=False):
+def grade_role_week(client,season,week,refresh=False,defense=False,current=False,testing=False):
     root=client.root
-    folder,meta,predictions=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=current)
+    if testing:
+        from ..testing_forecasts import load_testing_snapshot
+        loaded=load_testing_snapshot(root,season,week,defense)
+        if loaded is None:raise ValueError('No testing forecast exists')
+        folder,meta,predictions=loaded
+    else:
+        folder,meta,predictions=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=current)
     refs=[];frames={}
     for dataset,year in [('schedules',None),('play_by_play',season),('player_stats',season)]:
         path=client.download(dataset,year,force=refresh)
@@ -53,5 +59,8 @@ def grade_role_week(client,season,week,refresh=False,defense=False,current=False
              statuses=grades.status.value_counts().to_dict(),graded=int(grades.status.eq('graded').sum()),
              relevant_statuses=relevant.status.value_counts().to_dict(),
              grades_sha256=hashlib.sha256((output/'grades.parquet').read_bytes()).hexdigest())
+    if testing:
+        run['selection']='separate prospective testing snapshot; only games starting after its creation'
+        run['forecast_scope']=meta['forecast_scope']
     (output/'manifest.json').write_text(json.dumps(run,indent=2),encoding='utf-8')
     return output

@@ -85,4 +85,5 @@ def load_pinned_history(meta):
     stats=pd.concat([pd.read_parquet(p) for p in paths if p.name.startswith('stats_player_week_')],ignore_index=True)
     stats=stats[stats.season_type.eq('REG')]
     stats=stats.merge(schedule[['game_id','kickoff','home_score','away_score']],on='game_id',validate='many_to_one')
-    return stats[stats.kickoff.lt(pd.Timestamp(meta['created_at']))&stats.home_score.notna()&stats.away_score.notna()]
+    cutoff=meta.get('history_cutoff',meta.get('feature_cutoff',meta['created_at']))
+    return stats[stats.kickoff.lt(pd.Timestamp(cutoff))&stats.home_score.notna()&stats.away_score.notna()]
