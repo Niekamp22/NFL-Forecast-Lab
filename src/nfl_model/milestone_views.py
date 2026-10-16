@@ -11,9 +11,10 @@ def load_milestones(root,season,week,defense,forecast_folder,forecast_meta):
     candidates=[]
     for path in (Path(root)/'player_milestones'/family/str(season)/f'week_{week:02d}').glob('*/manifest.json'):
         meta=json.loads(path.read_text())
+        retrospective=(forecast_meta.get('forecast_scope')=='retrospective_comparison' and forecast_meta.get('eligible_for_accuracy') is False and meta.get('forecast_scope')=='retrospective_comparison' and meta.get('eligible_for_accuracy') is False)
         if (meta['forecast_sha256']==forecast_meta['predictions_sha256']
             and resolve_artifact(meta['forecast_path']).resolve()==Path(forecast_folder).resolve()
-            and pd.Timestamp(meta['created_at'])<pd.Timestamp(meta['earliest_kickoff'])):
+            and (pd.Timestamp(meta['created_at'])<pd.Timestamp(meta['earliest_kickoff']) or retrospective)):
             candidates.append((pd.Timestamp(meta['created_at']),str(path),meta))
     if not candidates:return None
     _,path,meta=min(candidates,key=lambda x:x[:2])

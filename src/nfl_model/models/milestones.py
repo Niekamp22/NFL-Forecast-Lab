@@ -97,10 +97,16 @@ def evaluate_records(records):
     return training,pd.concat(evaluations,ignore_index=True),pd.DataFrame(metrics),pd.DataFrame(reliability)
 
 
-def build_milestones(root,season,week,defense=False,testing=False):
+def build_milestones(root,season,week,defense=False,testing=False,retrospective=False):
     root=Path(root)
     family='defense' if defense else 'baseline'
-    if testing:
+    if testing and retrospective:raise ValueError('Choose one forecast scope')
+    if retrospective:
+        from ..retrospective_forecasts import load_retrospective_snapshot
+        loaded=load_retrospective_snapshot(root,season,week,defense)
+        if loaded is None:raise ValueError('No retrospective comparison exists')
+        original,meta,players=loaded
+    elif testing:
         from ..testing_forecasts import load_testing_snapshot
         loaded=load_testing_snapshot(root,season,week,defense)
         if loaded is None:raise ValueError('No testing forecast exists')
@@ -109,7 +115,7 @@ def build_milestones(root,season,week,defense=False,testing=False):
         original,meta,players=checked_player_snapshot(root/('player_role_defense_forecasts' if defense else 'player_role_forecasts')/str(season)/f'week_{week:02d}',current=True)
     now=pd.Timestamp.now(tz='UTC')
     if season<=2025:raise ValueError('Prospective milestones require a season after the evaluation years')
-    if now>=pd.Timestamp(meta['earliest_kickoff']):raise ValueError('Cannot freeze milestones after kickoff')
+    if not retrospective and now>=pd.Timestamp(meta['earliest_kickoff']):raise ValueError('Cannot freeze milestones after kickoff')
     model_root=root/'models/player_milestones';pointer=model_root/'latest.json'
     raw_hashes={p:h for p,h in meta['input_hashes'].items() if Path(p).name.startswith('stats_player_week_') or Path(p).name=='games.parquet'}
     model=None
@@ -171,5 +177,6 @@ def build_milestones(root,season,week,defense=False,testing=False):
               model_path=str(model.resolve()),model_manifest_sha256=hashlib.sha256((model/'manifest.json').read_bytes()).hexdigest(),
               probabilities_sha256=hashlib.sha256((folder/'probabilities.parquet').read_bytes()).hexdigest(),rows=len(frame),status_counts=frame.status.value_counts().to_dict(),
               semantics='P(recorded game stat >= milestone); integer thresholds include equality. Conditional on existing role and observed participation. Not sportsbook settlement rules.')
+    if retrospective:info.update(forecast_scope='retrospective_comparison',eligible_for_accuracy=False)
     (folder/'manifest.json').write_text(json.dumps(info,indent=2),encoding='utf-8')
     return folder

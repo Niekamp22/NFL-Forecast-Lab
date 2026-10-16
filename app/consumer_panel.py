@@ -50,6 +50,8 @@ def results_panel(result, game_id=None, player_id=None, predictions=None):
         if result is None:
             st.info('No verified results match this forecast version yet. Older forecast versions are not substituted.'); return
         _, run, rows = result
+        if run.get('eligible_for_accuracy') is False:
+            st.warning('After-kickoff comparison results only. These errors are excluded from prospective testing accuracy.')
         if predictions is not None:
             rows=accuracy_cohorts(rows,predictions)
         if game_id: rows = rows[rows.game_id.eq(game_id)]

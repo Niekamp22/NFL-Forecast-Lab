@@ -19,6 +19,7 @@ from nfl_model.models.player_roles import checked_player_snapshot
 from nfl_model.player_views import POSITION_STATS,PRIMARY,CARD_GROUPS,SHORT_LABELS,chronological_games,matchup_players,load_pinned_history,with_total_yards,blank_explanations
 from nfl_model.projection_accounting import team_accounting
 from nfl_model.testing_forecasts import load_testing_snapshot
+from nfl_model.retrospective_forecasts import load_retrospective_snapshot
 
 st.set_page_config(page_title='NFL Forecast Lab',page_icon='🏈',layout='wide')
 st.markdown('''<style>.block-container{padding-top:4rem;max-width:1360px}
@@ -86,18 +87,27 @@ try:
         folder,meta,players=checked_player_snapshot(role_root,current=True)
         budgets=pd.read_parquet(folder/'team_budgets.parquet')
     original_players=players.copy()
-    use_testing=False
+    use_testing=False;is_retrospective=False
     testing=load_testing_snapshot(root,season,week,use_defense_roles)
+    comparison=load_retrospective_snapshot(root,season,week,use_defense_roles)
     if testing:
         requested_version=st.query_params.get('version')
-        excluded_link=st.query_params.get('game') in testing[1]['excluded_started_games']
+        comparison_ids=set(comparison[1]['game_ids']) if comparison else set()
+        excluded_link=st.query_params.get('game') in set(testing[1]['excluded_started_games'])-comparison_ids
         default_test=requested_version=='testing' or (requested_version!='original' and not excluded_link)
         version=st.sidebar.selectbox('Forecast version',[f'Week {week} testing · Shared scoring','Original pregame forecasts'],index=0 if default_test else 1)
         use_testing=version.startswith('Week ')
         if use_testing:
             folder,meta,players=testing
             budgets=pd.read_parquet(folder/'team_budgets.parquet')
-            games=games[games.game_id.isin(meta['game_ids'])].copy()
+            shown_ids=set(meta['game_ids'])
+            if comparison:
+                players=pd.concat([players,comparison[2]],ignore_index=True)
+                budgets=pd.concat([budgets,pd.read_parquet(comparison[0]/'team_budgets.parquet')],ignore_index=True)
+                shown_ids.update(comparison_ids)
+                if st.query_params.get('game') in comparison_ids:
+                    folder,meta=comparison[:2];is_retrospective=True
+            games=games[games.game_id.isin(shown_ids)].copy()
     st.query_params['version']='testing' if use_testing else 'original'
     scope=(season,week)
     if st.session_state.get('scope',scope)!=scope:go()
@@ -114,7 +124,7 @@ else:
     st.sidebar.info('Preview for feedback · Saved forecasts, not a live feed. Player projections and milestone probabilities are experimental.')
 st.sidebar.caption('Saved estimates · Reload reads saved files; it does not fetch new stats or injuries.')
 if use_testing:
-    st.sidebar.info(f"Week {week} testing · {len(games)} matchups saved before their kickoffs. Switch to Original pregame forecasts to view games that had already started.")
+    st.sidebar.info(f"Week {week} · {len(testing[1]['game_ids'])} pregame tests"+(f" + {len(comparison[1]['game_ids'])} after-kickoff comparison. Comparisons are excluded from prospective accuracy." if comparison else '. Games already started remain in the original view.'))
 if use_defense_roles:
     st.sidebar.caption('Defense-adjusted player workloads and yardage. '+('TD and conversion estimates retain the shared team scoring budget.' if meta and meta.get('joint_scoring_policy') else 'Team scores and kickers unchanged.')+' Historical defense comparison is at team level; player roles remain provisional.')
     if meta is not None:
@@ -133,9 +143,11 @@ if meta is not None:
     except (OSError,ValueError,KeyError,StopIteration):
         input_date='Unavailable'
 def render_freshness():
-    st.caption(('Week '+str(week)+' testing · Shared scoring · ' if use_testing else 'Saved forecast · ')+'No live injury updates')
-    if use_testing:
-        st.info('Testing version created '+date_label(meta['created_at'])+'. Uses the original saved statistics and availability evidence to isolate the scoring change. Games that had already started are excluded; test results are tracked separately.')
+    st.caption(('After-kickoff comparison · Shared scoring · ' if is_retrospective else 'Week '+str(week)+' testing · Shared scoring · ' if use_testing else 'Saved forecast · ')+'No live injury updates')
+    if is_retrospective:
+        st.warning('After-kickoff comparison · Created '+date_label(meta['created_at'])+' using the original saved pregame inputs. No live game statistics inform these estimates. Shown for comparison and excluded from prospective testing accuracy.')
+    elif use_testing:
+        st.info('Testing version created '+date_label(meta['created_at'])+'. Uses the original saved statistics and availability evidence to isolate the scoring change. Pregame tests and after-kickoff comparisons are tracked separately.')
     with st.expander('Forecast dates & data coverage'):
         st.write('Team estimates saved: '+date_label(team_meta.get('created_at')))
         if meta is not None:
@@ -151,6 +163,8 @@ def render_freshness():
                 st.caption(review['scope'])
         st.caption('Dates describe the saved inputs, not a live feed. A game starting does not automatically update its results here.')
 final_scores=verified_game_scores(results)
+if use_testing and comparison and not is_retrospective:
+    final_scores.update(verified_game_scores(matching_player_results(root,season,week,use_defense_roles,comparison[1])))
 final_games=set(final_scores)
 
 def render_availability(row):
@@ -172,6 +186,7 @@ if not game_id:
     render_freshness()
     st.caption(f'{season} · WEEK {week} · {len(games)} GAMES · ALL TIMES EASTERN')
     st.write('Choose a matchup to explore both teams and their player projections.')
+    if use_testing and comparison:st.caption('Accuracy totals below cover the pregame testing cohort only. The after-kickoff comparison is available in its matchup.')
     if not players.empty:
         with st.expander('Search players & compare weekly estimates'):
             player_browser(players,go)
@@ -190,6 +205,8 @@ if not game_id:
                 with column.container(border=True):
                     st.caption(game.local_kickoff.strftime('%I:%M %p ET')+' · '+game_status(game.local_kickoff,game.game_id in final_games))
                     st.subheader(f'{game.away_team} at {game.home_team}')
+                    if use_testing and comparison and game.game_id in comparison[1]['game_ids']:
+                        st.caption('After-kickoff comparison · Excluded from prospective accuracy')
                     a,b=st.columns(2)
                     a.metric(f'{game.away_team} projected',fmt(game.projected_away_score))
                     b.metric(f'{game.home_team} projected',fmt(game.projected_home_score))

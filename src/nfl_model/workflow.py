@@ -37,6 +37,11 @@ def run_player_week(client,season,week,refresh=False):
         test=load_testing_snapshot(root,season,week,is_defense)
         if test:
             result[key]={'forecast':str(test[0]),'grading':str(grade_role_week(client,season,week,False,defense=is_defense,testing=True))}
+    from .retrospective_forecasts import load_retrospective_snapshot
+    for is_defense,key in [(False,'comparison'),(True,'comparison_defense')]:
+        comparison=load_retrospective_snapshot(root,season,week,is_defense)
+        if comparison:
+            result[key]={'forecast':str(comparison[0]),'grading':str(grade_role_week(client,season,week,False,defense=is_defense,retrospective=True))}
     return result
 
 

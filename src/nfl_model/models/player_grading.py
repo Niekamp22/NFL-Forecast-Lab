@@ -32,9 +32,15 @@ def grade_player_rows(predictions,schedule,pbp,stats):
     return out
 
 
-def grade_role_week(client,season,week,refresh=False,defense=False,current=False,testing=False):
+def grade_role_week(client,season,week,refresh=False,defense=False,current=False,testing=False,retrospective=False):
     root=client.root
-    if testing:
+    if testing and retrospective:raise ValueError('Choose one forecast scope')
+    if retrospective:
+        from ..retrospective_forecasts import load_retrospective_snapshot
+        loaded=load_retrospective_snapshot(root,season,week,defense)
+        if loaded is None:raise ValueError('No retrospective comparison exists')
+        folder,meta,predictions=loaded
+    elif testing:
         from ..testing_forecasts import load_testing_snapshot
         loaded=load_testing_snapshot(root,season,week,defense)
         if loaded is None:raise ValueError('No testing forecast exists')
@@ -50,7 +56,8 @@ def grade_role_week(client,season,week,refresh=False,defense=False,current=False
     relevant=grades.loc[grades.apply(lambda r:r.stat in POSITION_STATS.get(r.position,[]),axis=1)]
     metrics=relevant[relevant.status.eq('graded')].groupby(['position','stat']).error.agg(observations='size',mae=lambda x:x.abs().mean(),bias='mean').reset_index()
     now=pd.Timestamp.now(tz='UTC')
-    output=root/('player_defense_evaluations' if defense else 'player_evaluations')/str(season)/f'week_{week:02d}'/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8])
+    family=('player_comparison_evaluations/'+('defense' if defense else 'baseline')) if retrospective else ('player_defense_evaluations' if defense else 'player_evaluations')
+    output=root/family/str(season)/f'week_{week:02d}'/(now.strftime('%Y%m%dT%H%M%S%fZ')+'_'+uuid.uuid4().hex[:8])
     output.mkdir(parents=True,exist_ok=False)
     grades.to_parquet(output/'grades.parquet',index=False);metrics.to_csv(output/'metrics.csv',index=False)
     run=dict(created_at=str(now),snapshot=str(folder.resolve()),snapshot_hash=meta['predictions_sha256'],sources=refs,
@@ -62,5 +69,7 @@ def grade_role_week(client,season,week,refresh=False,defense=False,current=False
     if testing:
         run['selection']='separate prospective testing snapshot; only games starting after its creation'
         run['forecast_scope']=meta['forecast_scope']
+    if retrospective:
+        run.update(selection='After-kickoff comparison only; excluded from prospective accuracy',forecast_scope='retrospective_comparison',eligible_for_accuracy=False)
     (output/'manifest.json').write_text(json.dumps(run,indent=2),encoding='utf-8')
     return output

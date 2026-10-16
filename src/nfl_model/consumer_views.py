@@ -6,6 +6,8 @@ import pandas as pd
 
 def matching_player_results(root, season, week, defense, meta):
     family = 'player_defense_evaluations' if defense else 'player_evaluations'
+    if meta.get('forecast_scope')=='retrospective_comparison':
+        family='player_comparison_evaluations/'+('defense' if defense else 'baseline')
     candidates = []
     if not meta.get('predictions_sha256'):
         return None
