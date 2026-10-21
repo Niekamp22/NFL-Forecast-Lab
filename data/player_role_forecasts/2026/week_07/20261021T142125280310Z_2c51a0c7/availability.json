@@ -1,0 +1,156 @@
+{
+  "season": 2026,
+  "week": 7,
+  "reviewed_at": "2026-10-21 14:15:05.445079+00:00",
+  "scope": "Selected official Week 7 evidence observed October 21 morning. Thursday final designations and Sunday/Monday practice reports are not yet complete. Not league-wide injury clearance. Prior-week statuses are not carried forward; historical partial appearances retained only for active identities. No invented numerical injury penalty.",
+  "players": [
+    {
+      "team": "CHI",
+      "player_id": "00-0039918",
+      "player_name": "Caleb Williams",
+      "action": "note",
+      "note": "Historical partial appearance only: 2026_02_MIN_CHI. Week 7 participation remains conditional; previous-week status is not carried forward.",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page",
+      "shortened_games": [
+        "2026_02_MIN_CHI"
+      ],
+      "historical_source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury"
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0034869",
+      "player_name": "Sam Darnold",
+      "action": "note",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Historical partial appearance only: 2026_01_NE_SEA. Week 7 participation remains conditional; previous-week status is not carried forward.",
+      "shortened_games": [
+        "2026_01_NE_SEA"
+      ]
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0035676",
+      "player_name": "A.J. Brown",
+      "action": "uncertain",
+      "note": "Ankle: limited Tuesday. Thursday final game designation is not yet posted.",
+      "source_url": "https://www.patriots.com/news/week-7-injury-report-patriots-at-bears",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CHI",
+      "player_id": "00-0040236",
+      "player_name": "Kyle Monangai",
+      "action": "uncertain",
+      "note": "Thumb/toe: did not participate in Tuesday walkthrough estimate. Thursday final game designation is not yet posted.",
+      "source_url": "https://www.patriots.com/news/week-7-injury-report-patriots-at-bears",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0039851",
+      "player_name": "Drake Maye",
+      "action": "note",
+      "note": "Right shoulder: full Tuesday. Final game designation is not yet posted.",
+      "source_url": "https://www.patriots.com/news/week-7-injury-report-patriots-at-bears",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0040734",
+      "player_name": "TreVeyon Henderson",
+      "action": "note",
+      "note": "Ankle: full Tuesday. Final game designation is not yet posted.",
+      "source_url": "https://www.patriots.com/news/week-7-injury-report-patriots-at-bears",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0040200",
+      "player_name": "Andy Borregales",
+      "action": "note",
+      "note": "Personal: full Tuesday. Final game designation is not yet posted.",
+      "source_url": "https://www.patriots.com/news/week-7-injury-report-patriots-at-bears",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0037816",
+      "player_name": "Romeo Doubs",
+      "action": "unavailable",
+      "note": "Placed on injured reserve October 19.",
+      "source_url": "https://www.patriots.com/news/patriots-place-wr-romeo-doubs-on-injured-reserve-sign-db-elliott-davison-to-the-53-man-roster-from-the-practice-squad-announce-additional-practice-squad-moves",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PHI",
+      "player_id": "00-0036389",
+      "player_name": "Jalen Hurts",
+      "action": "unavailable",
+      "note": "Placed on injured reserve October 17.",
+      "source_url": "https://www.philadelphiaeagles.com/team/transactions/",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PHI",
+      "player_id": "00-0039746",
+      "player_name": "Will Shipley",
+      "action": "unavailable",
+      "note": "Placed on injured reserve October 16.",
+      "source_url": "https://www.philadelphiaeagles.com/team/transactions/",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "BAL",
+      "player_id": "00-0034796",
+      "player_name": "Lamar Jackson",
+      "action": "uncertain",
+      "note": "Lamar Jackson remains day-to-day per Monday team update. Week 7 starting quarterback not confirmed; no starter override.",
+      "source_url": "https://www.baltimoreravens.com/news/jesse-minter-lamar-jackson-ankle-still-day-day-monday-week-7-injuries-rashod-bateman-cam-jurgens-trey-hendrickson-tyler-loop-critical-misses",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "BAL",
+      "player_id": "00-0035993",
+      "player_name": "Tyler Huntley",
+      "action": "uncertain",
+      "note": "Lamar Jackson remains day-to-day per Monday team update. Week 7 starting quarterback not confirmed; no starter override.",
+      "source_url": "https://www.baltimoreravens.com/news/jesse-minter-lamar-jackson-ankle-still-day-day-monday-week-7-injuries-rashod-bateman-cam-jurgens-trey-hendrickson-tyler-loop-critical-misses",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "BAL",
+      "player_id": "00-0036550",
+      "player_name": "Rashod Bateman",
+      "action": "uncertain",
+      "note": "Left Week 6 with shoulder issue. Team expressed optimism Monday, without Week 7 game clearance.",
+      "source_url": "https://www.baltimoreravens.com/news/jesse-minter-lamar-jackson-ankle-still-day-day-monday-week-7-injuries-rashod-bateman-cam-jurgens-trey-hendrickson-tyler-loop-critical-misses",
+      "published_at": "2026-10-21 14:15:05.445079+00:00",
+      "observed_at": "2026-10-21 14:15:05.445079+00:00",
+      "source_date_basis": "observed_page"
+    }
+  ]
+}
