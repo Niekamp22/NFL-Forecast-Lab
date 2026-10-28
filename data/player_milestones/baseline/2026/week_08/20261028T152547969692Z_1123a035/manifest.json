@@ -1,0 +1,17 @@
+{
+  "created_at": "2026-10-28 15:25:47.969692+00:00",
+  "earliest_kickoff": "2026-10-30 00:15:00+00:00",
+  "forecast_path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\player_role_forecasts\\2026\\week_08\\20261028T152424572737Z_5e09b33c",
+  "forecast_sha256": "d6b16fa99bb3a13455b1e8c9311ff56833588f955efb19a5596ce9a980ffc628",
+  "model_path": "C:\\Users\\joshn\\OneDrive\\Documents\\NFL Football Power Rankings\\data\\models\\player_milestones\\20261028T152547969692Z_d5af3d76",
+  "model_manifest_sha256": "4b8ac7511b3a8f08350b089739494a0e00834710fdf591227dcf30cfeff719a7",
+  "probabilities_sha256": "f9da9933b7eb86e79f66def051d5afc2e9ace0bb48b940adc9173ca1044d04e4",
+  "rows": 25791,
+  "status_counts": {
+    "experimental": 18514,
+    "projection_unavailable": 5486,
+    "limited_current_team_history": 1786,
+    "outside_training_support": 5
+  },
+  "semantics": "P(recorded game stat >= milestone); integer thresholds include equality. Conditional on existing role and observed participation. Not sportsbook settlement rules."
+}

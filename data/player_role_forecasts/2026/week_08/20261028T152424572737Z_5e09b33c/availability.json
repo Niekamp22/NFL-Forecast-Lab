@@ -1,0 +1,145 @@
+{
+  "season": 2026,
+  "week": 8,
+  "reviewed_at": "2026-10-28 15:19:06.991756+00:00",
+  "scope": "Selected official Week 8 evidence observed October 28 morning. Thursday final designations and Sunday/Monday practice reports are incomplete. Not league-wide injury clearance. Prior-week actions not carried forward; historical partial appearances retained for active identities. No invented numerical injury penalty.",
+  "players": [
+    {
+      "team": "CHI",
+      "player_id": "00-0039918",
+      "player_name": "Caleb Williams",
+      "action": "note",
+      "note": "Historical partial appearance only: 2026_02_MIN_CHI. Week 8 participation remains conditional; previous-week status is not carried forward.",
+      "source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury",
+      "published_at": "2026-10-15 15:47:36.389728+00:00",
+      "observed_at": "2026-10-15 15:47:36.389728+00:00",
+      "source_date_basis": "observed_page",
+      "shortened_games": [
+        "2026_02_MIN_CHI"
+      ],
+      "historical_source_url": "https://www.chicagobears.com/news/caleb-williams-week-to-week-with-hamstring-injury"
+    },
+    {
+      "team": "SEA",
+      "player_id": "00-0034869",
+      "player_name": "Sam Darnold",
+      "action": "note",
+      "published_at": "2026-09-21T16:20:00-04:00",
+      "source_url": "https://www.seahawks.com/news/seahawks-planning-on-sam-darnold-returning-to-practice-this-week",
+      "note": "Historical partial appearance only: 2026_01_NE_SEA. Week 8 participation remains conditional; previous-week status is not carried forward.",
+      "shortened_games": [
+        "2026_01_NE_SEA"
+      ]
+    },
+    {
+      "team": "GB",
+      "player_id": "00-0040667",
+      "player_name": "Matthew Golden",
+      "action": "uncertain",
+      "note": "Shoulder/foot: did not participate in Tuesday walkthrough estimate. Thursday final game designation not yet posted.",
+      "source_url": "https://www.packers.com/news/packers-panthers-injury-report-oct-27-2026",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CAR",
+      "player_id": "00-0039150",
+      "player_name": "Bryce Young",
+      "action": "note",
+      "note": "Knee: full Tuesday. Thursday final game designation not yet posted.",
+      "source_url": "https://www.packers.com/news/packers-panthers-injury-report-oct-27-2026",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CAR",
+      "player_id": "00-0039491",
+      "player_name": "Jalen Coker",
+      "action": "note",
+      "note": "Shoulder: full Tuesday. Thursday final game designation not yet posted.",
+      "source_url": "https://www.packers.com/news/packers-panthers-injury-report-oct-27-2026",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "BAL",
+      "player_id": "00-0034796",
+      "player_name": "Lamar Jackson",
+      "action": "uncertain",
+      "note": "Team Monday update says more will be known Wednesday about Jackson returning. Week 8 starter remains unconfirmed; no starter override.",
+      "source_url": "https://www.baltimoreravens.com/news/jesse-minter-discusses-ravens-leadership-lamar-jackson-status-to-be-updated-wednesday-for-week-8-buffalo-bills",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "BAL",
+      "player_id": "00-0035993",
+      "player_name": "Tyler Huntley",
+      "action": "uncertain",
+      "note": "Team Monday update says more will be known Wednesday about Jackson returning. Week 8 starter remains unconfirmed; no starter override.",
+      "source_url": "https://www.baltimoreravens.com/news/jesse-minter-discusses-ravens-leadership-lamar-jackson-status-to-be-updated-wednesday-for-week-8-buffalo-bills",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "CIN",
+      "player_id": "00-0039814",
+      "player_name": "Erick All",
+      "action": "unavailable",
+      "note": "Placed on injured reserve October 27; roster is RES.",
+      "source_url": "https://www.bengals.com/team/transactions/2026",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PHI",
+      "player_id": "00-0036389",
+      "player_name": "Jalen Hurts",
+      "action": "unavailable",
+      "note": "Remains on reserve/injured in refreshed Week 8 roster following October 17 placement.",
+      "source_url": "https://www.philadelphiaeagles.com/team/transactions/",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "PHI",
+      "player_id": "00-0039746",
+      "player_name": "Will Shipley",
+      "action": "unavailable",
+      "note": "Remains on reserve/injured in refreshed Week 8 roster following October 16 placement.",
+      "source_url": "https://www.philadelphiaeagles.com/team/transactions/",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "NE",
+      "player_id": "00-0037816",
+      "player_name": "Romeo Doubs",
+      "action": "unavailable",
+      "note": "Remains on reserve/injured in refreshed Week 8 roster following October 19 placement.",
+      "source_url": "https://www.patriots.com/news/patriots-place-wr-romeo-doubs-on-injured-reserve-sign-db-elliott-davison-to-the-53-man-roster-from-the-practice-squad-announce-additional-practice-squad-moves",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    },
+    {
+      "team": "TB",
+      "player_id": "00-0034855",
+      "player_name": "Baker Mayfield",
+      "action": "note",
+      "note": "Returned to play in Week 7 after thumb injury. This is prior-game context, not Week 8 medical clearance.",
+      "source_url": "https://www.buccaneers.com/news/october-2026-updates",
+      "published_at": "2026-10-28 15:19:06.991756+00:00",
+      "observed_at": "2026-10-28 15:19:06.991756+00:00",
+      "source_date_basis": "observed_page"
+    }
+  ]
+}
